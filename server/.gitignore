@@ -1,0 +1,8 @@
+.ropeproject/
+.venv/
+.DS_Store
+.idea
+.vscode
+.env
+to-do.txt
+backup.txt
