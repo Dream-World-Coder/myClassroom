@@ -1,8 +1,18 @@
 from bson import ObjectId
 from myClassroom import mongo
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 from datetime import datetime
+from random import randint
 import re
+
+course_thumbnails:list = [
+    "/images/courseThumbnails/1.jpg",
+    "/images/courseThumbnails/2.jpg",
+    "/images/courseThumbnails/3.jpg",
+    "/images/courseThumbnails/4.jpg",
+    "/images/courseThumbnails/5.jpg",
+    "/images/courseThumbnails/6.jpg",
+];
 
 class User():
     def __init__(self, username, email, password, ipAddress, deviceInfo, _id=None, acctualName=None, schoolName=None,
@@ -10,7 +20,7 @@ class User():
         self.id = str(_id) if _id else None
         self.username = username
         self.email = email
-        self.password = generate_password_hash(password)
+        self.password = password
         self.ipAddress = ipAddress
         self.deviceInfo = deviceInfo
         self.acctualName = acctualName
@@ -67,12 +77,13 @@ class User():
             "noOfLectures": len(videos),
             "courseOrganiser": courseOrganiser,
             "courseDuration": courseDuration,
-            "course_materials": course_materials
+            "courseMaterials": course_materials,
+            "courseThumbnail": course_thumbnails[randint(0, len(course_thumbnails)-1)]
         }
         self.courses.append(new_course)
         self.save()
 
-    def update_course(self, courseName, courseUrl, videos, courseOrganiser=None, courseDuration=None, course_materials=None):
+    def update_course(self, courseName, courseUrl, videos, courseOrganiser=None, courseDuration=None, courseMaterials=None, progress=0):
         """Update course if exists, else add a new one"""
         for course in self.courses:
             if course["courseUrl"] == courseUrl:
@@ -81,15 +92,16 @@ class User():
                     "courseName": courseName,
                     "videos": videos,
                     "noOfLectures": len(videos),
+                    "progress": progress,
                     "courseOrganiser": courseOrganiser,
                     "courseDuration": courseDuration,
-                    "course_materials": course_materials
+                    "courseMaterials": courseMaterials
                 })
                 self.save()
                 return
 
         # If course not found, add a new one
-        self.add_course(courseName, courseUrl, videos, courseOrganiser, courseDuration, course_materials)
+        self.add_course(courseName, courseUrl, videos, courseOrganiser, courseDuration, courseMaterials)
 
     @staticmethod
     def is_valid_email(email):

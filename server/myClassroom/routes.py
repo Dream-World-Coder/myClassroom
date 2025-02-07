@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required, create_access_token
+from werkzeug.security import generate_password_hash
 from myClassroom import mongo
 from myClassroom.models import User
 from .utils import extract_playlist_videos
@@ -12,6 +13,9 @@ api_bp = Blueprint("api_bp", __name__)
 def __route_home():
     return "API Working", 200
 
+
+# Authentication
+# -----------------
 def is_valid_password(password):
     """Check password strength"""
     return re.match(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,16}$', password) is not None
@@ -42,7 +46,7 @@ def __route_register_user():
     new_user = User(
         username=username,
         email=email,
-        password=password,
+        password=generate_password_hash(password),
         ipAddress=ipAddress,
         deviceInfo=deviceInfo,
         lastFiveLogin=[loginTime.isoformat()]
@@ -70,7 +74,7 @@ def __route_login_user():
     user = User(**user_data)
 
     if not user.check_password(password):
-        return jsonify({"error": "Invalid email or password."}), 401
+        return jsonify({"error": "Invalid password."}), 401
 
     # Update login history
     user.update_last_login()
@@ -104,6 +108,9 @@ def __route_get_user_data():
     }), 200
 
 
+
+# Add / Update course
+# -----------------
 @api_bp.route("/extract-videos-and-save-in-db", methods=['POST'])
 @jwt_required()
 def __route_extract_videos_from_url():
@@ -136,18 +143,20 @@ def __route_extract_videos_from_url():
                 videos=playListData,
                 courseOrganiser=course_organiser,
                 courseDuration=course_duration,
-                course_materials=course_materials
+                courseMaterials=course_materials
             )
             return jsonify({"message": "Course saved/updated successfully!", "playListData": playListData}), 200
         else:
             return jsonify({"error": "User not found"}), 404
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"\n\nError: {e}\n")
         return jsonify({"error": "Internal Server Error"}), 500
 
 
+# Error handler
+# -----------------
 @api_bp.errorhandler(Exception)
 def handle_exception(e):
-    print(e)
+    print(f"\n\nError: {e}\n")
     return {"error": str(e)}, 500
