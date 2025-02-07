@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import Header from "../../components/Headers/Header";
 import CourseCard from "./CourseCard/Course";
-import { useAuth } from "../../contexts/AuthContext";
 import toast from "react-hot-toast";
 
 const AddCoursePage = () => {
@@ -17,7 +16,7 @@ const AddCoursePage = () => {
     const [studyMaterials, setStudyMaterials] = useState([]);
     const [previewCourse, setPreviewCourse] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [videoList, setVideoList] = useState([
+    const [videos, setVideoList] = useState([
         {
             videoUrl: "none",
             videoTitle: "none",
@@ -25,7 +24,6 @@ const AddCoursePage = () => {
             videoThumbnailUrl: "none",
         },
     ]);
-    const { login } = useAuth();
 
     // for courses input
     const courseAttributesInputs = [
@@ -75,12 +73,12 @@ const AddCoursePage = () => {
     };
 
     var courseData = {
-        name: courseName,
-        organiser: courseOrganiser,
-        duration: courseDuration,
-        url: courseUrl,
-        studyMaterials: studyMaterials,
-        videoList: videoList,
+        courseName,
+        courseOrganiser,
+        courseDuration,
+        courseUrl,
+        courseMaterials: studyMaterials,
+        videos,
     };
 
     function fetchPlayListUrl(courseData) {
@@ -124,12 +122,12 @@ const AddCoursePage = () => {
 
                 setVideoList(data.playListData);
                 courseData = {
-                    name: courseName,
-                    organiser: courseOrganiser,
-                    duration: courseDuration,
-                    url: courseUrl,
-                    studyMaterials: studyMaterials,
-                    videoList: data.playListData, // else need a re-render to see changes, but why
+                    courseName,
+                    courseOrganiser,
+                    courseDuration,
+                    courseUrl,
+                    courseMaterials: studyMaterials,
+                    videos: data.playListData, // else need a re-render to see changes, but why
                 };
                 setPreviewCourse(courseData);
             })
@@ -158,12 +156,12 @@ const AddCoursePage = () => {
         // else: make a different fetch function for just updating the courseName etc. other attributes
         setLastFetchedCourseUrl(courseUrl);
         courseData = {
-            name: courseName,
-            organiser: courseOrganiser,
-            duration: courseDuration,
-            url: courseUrl,
-            studyMaterials: studyMaterials,
-            videoList: videoList,
+            courseName,
+            courseOrganiser,
+            courseDuration,
+            courseUrl,
+            courseMaterials: studyMaterials,
+            videos,
         };
         setPreviewCourse(courseData);
         // toast.success("course saved!");
@@ -344,7 +342,7 @@ const AddCoursePage = () => {
                 </div>
 
                 {/* Course Preview */}
-                <div className="space-y-6 col-span-1 md:col-span-2 h-fit">
+                <div className="space-y-6 col-span-1 md:col-span-2 h-fit pointer-events-none cursor-none">
                     <h2
                         className={`text-2xl font-bold mb-6
                         ${isDarkMode ? "text-stone-200" : "text-gray-800"}`}
@@ -358,8 +356,7 @@ const AddCoursePage = () => {
                         {previewCourse ? (
                             <CourseCard
                                 isDarkMode={isDarkMode}
-                                previewCourseData={previewCourse}
-                                progress={""}
+                                courseData={previewCourse}
                             />
                         ) : (
                             <p

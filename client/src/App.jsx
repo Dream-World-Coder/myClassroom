@@ -1,11 +1,16 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+
+import LandingPage from "./pages/LandingPage/LandingPage";
 import HomeDashboard from "./pages/Home/HomePage";
+
 import AddCoursePage from "./pages/Courses/AddCourse";
+import AllCourses from "./pages/Courses/AllCourses";
+import CoursePage from "./pages/Courses/CoursePage";
+
 import LoginPage from "./pages/Auth/Login";
 import RegisterPage from "./pages/Auth/Register";
-import LandingPage from "./pages/LandingPage/LandingPage";
 import AuthProvider from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoutes";
 
@@ -16,8 +21,9 @@ export default function App() {
             <Toaster position="top-center" />
             <Router>
                 <Routes>
-                    <Route path="/" element={<HomeDashboard />} />
                     <Route path="/lp" element={<LandingPage />} />
+                    <Route path="/" element={<HomeDashboard />} />
+
                     <Route
                         path="/add-course"
                         element={
@@ -26,6 +32,23 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route
+                        path="/courses"
+                        element={
+                            <ProtectedRoute>
+                                <AllCourses />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/courses/:courseId"
+                        element={
+                            <ProtectedRoute>
+                                <CoursePage />
+                            </ProtectedRoute>
+                        }
+                    />
+
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
                 </Routes>

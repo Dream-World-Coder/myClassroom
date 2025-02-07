@@ -6,11 +6,13 @@
 }
 
 /* Track */
+
 ::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0);
 }
 
 /* Handle */
+/*
 ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0);
     border-radius: 12px;
@@ -18,7 +20,7 @@
 }
 ::-webkit-scrollbar-thumb:hover {
     background: #333;
-}
+}  */
 
 body {
     background-color: white;

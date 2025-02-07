@@ -3,6 +3,10 @@ import { Menu, X, Search, Moon, Sun } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+// This is not good i guess, why pass isDarkMode and its setter as prop,
+// instead just get it from localstorage and only header will have the option
+// to change it. --> not refreshing
+
 const Header = ({ isDarkMode, setIsDarkMode }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeLink, setActiveLink] = useState("Home");
@@ -24,7 +28,7 @@ const Header = ({ isDarkMode, setIsDarkMode }) => {
 
     const navLinks = [
         { name: "Home", href: "/" },
-        { name: "Practice", href: "/practice" },
+        // { name: "Practice", href: "/practice" },
         { name: "My Courses", href: "/courses" },
         { name: "Add Course", href: "/add-course" },
         // { name: "Browse", href: "#" },
@@ -34,7 +38,7 @@ const Header = ({ isDarkMode, setIsDarkMode }) => {
 
     return (
         <header
-            className={`sticky top-0 z-50 border-b ${isDarkMode ? "bg-stone-900 border-stone-800" : "bg-white border-gray-200"}`}
+            className={`sticky top-0 z-50 border-b ${isDarkMode ? "bg-stone-900 border-stone-800 text-white" : "bg-white border-gray-200"}`}
         >
             <div className="max-w-7xl mx-auto">
                 <div className="relative px-4 flex items-center justify-between h-16">

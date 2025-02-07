@@ -1,0 +1,10 @@
+So right now not every edit in course is getting saved in the database,
+only after a playlist-url change call to server is made
+
+later add array of video urls also alongside playlisturl
+
+remove video options
+
+add video delete options on hover: Edit option -> click then apply this
+
+add progress bar

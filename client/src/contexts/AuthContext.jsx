@@ -1,67 +1,3 @@
-// import { createContext, useContext, useEffect, useState } from "react";
-// import toast from "react-hot-toast";
-
-// const AuthContext = createContext();
-
-// const AuthProvider = ({ children }) => {
-//     const [user, setUser] = useState(null);
-//     const [token, setToken] = useState(localStorage.getItem("token") || null);
-//     const [loading, setLoading] = useState(true);
-
-//     useEffect(() => {
-//         if (token) {
-//             fetchUserData();
-//         } else {
-//             setLoading(false);
-//         }
-//     }, [token]);
-
-//     const fetchUserData = async () => {
-//         setLoading(true);
-//         try {
-//             const response = await fetch("http://127.0.0.1:5050/api/v1/u", {
-//                 headers: { Authorization: `Bearer ${token}` },
-//             });
-
-//             if (response.ok) {
-//                 const data = await response.json();
-//                 setUser(data);
-//             } else {
-//                 console.error("User fetch failed:", response.status);
-//                 toast.error("User fetch failed.");
-//                 logout();
-//             }
-//         } catch (error) {
-//             console.error("Error fetching user:", error);
-//             toast.error("Error fetching user.");
-//             logout();
-//         }
-//         setLoading(false);
-//     };
-
-//     const login = (newToken) => {
-//         localStorage.setItem("token", newToken);
-//         setToken(newToken);
-//     };
-
-//     const logout = () => {
-//         localStorage.removeItem("token");
-//         setUser(null);
-//         setToken(null);
-//     };
-
-//     return (
-//         <AuthContext.Provider value={{ user, token, loading, login, logout }}>
-//             {children}
-//         </AuthContext.Provider>
-//     );
-// };
-
-// const useAuth = () => useContext(AuthContext);
-
-// export default AuthProvider;
-// export { useAuth };
-
 import {
     createContext,
     useContext,
@@ -93,7 +29,7 @@ const AuthProvider = ({ children }) => {
         localStorage.removeItem("token");
         setUser(null);
         setToken(null);
-        toast.success("Logged out successfully");
+        // toast.success("Logged out successfully");
     }, []);
 
     const login = useCallback((newToken) => {
@@ -103,7 +39,7 @@ const AuthProvider = ({ children }) => {
         }
         localStorage.setItem("token", newToken);
         setToken(newToken);
-        toast.success("Logged in successfully");
+        // toast.success("Logged in successfully");
     }, []);
 
     const fetchUserData = useCallback(async () => {
@@ -207,3 +143,67 @@ const isAuthenticated = (user, token) => {
 
 export default AuthProvider;
 export { useAuth };
+
+// import { createContext, useContext, useEffect, useState } from "react";
+// import toast from "react-hot-toast";
+
+// const AuthContext = createContext();
+
+// const AuthProvider = ({ children }) => {
+//     const [user, setUser] = useState(null);
+//     const [token, setToken] = useState(localStorage.getItem("token") || null);
+//     const [loading, setLoading] = useState(true);
+
+//     useEffect(() => {
+//         if (token) {
+//             fetchUserData();
+//         } else {
+//             setLoading(false);
+//         }
+//     }, [token]);
+
+//     const fetchUserData = async () => {
+//         setLoading(true);
+//         try {
+//             const response = await fetch("http://127.0.0.1:5050/api/v1/u", {
+//                 headers: { Authorization: `Bearer ${token}` },
+//             });
+
+//             if (response.ok) {
+//                 const data = await response.json();
+//                 setUser(data);
+//             } else {
+//                 console.error("User fetch failed:", response.status);
+//                 toast.error("User fetch failed.");
+//                 logout();
+//             }
+//         } catch (error) {
+//             console.error("Error fetching user:", error);
+//             toast.error("Error fetching user.");
+//             logout();
+//         }
+//         setLoading(false);
+//     };
+
+//     const login = (newToken) => {
+//         localStorage.setItem("token", newToken);
+//         setToken(newToken);
+//     };
+
+//     const logout = () => {
+//         localStorage.removeItem("token");
+//         setUser(null);
+//         setToken(null);
+//     };
+
+//     return (
+//         <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+//             {children}
+//         </AuthContext.Provider>
+//     );
+// };
+
+// const useAuth = () => useContext(AuthContext);
+
+// export default AuthProvider;
+// export { useAuth };
