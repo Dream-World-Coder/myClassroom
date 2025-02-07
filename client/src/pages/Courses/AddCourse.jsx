@@ -8,6 +8,7 @@ const AddCoursePage = () => {
     const [isDarkMode, setIsDarkMode] = useState(
         () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
     );
+    const [activeLink, setActiveLink] = useState("Add Course");
     const [courseName, setCourseName] = useState("");
     const [courseOrganiser, setCourseOrganiser] = useState("");
     const [courseDuration, setCourseDuration] = useState("");
@@ -176,7 +177,12 @@ const AddCoursePage = () => {
                         : "bg-gray-50 text-gray-800"
                 }`}
         >
-            <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+            <Header
+                isDarkMode={isDarkMode}
+                setIsDarkMode={setIsDarkMode}
+                activeLink={activeLink}
+                setActiveLink={setActiveLink}
+            />
 
             <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Course Creation Form */}

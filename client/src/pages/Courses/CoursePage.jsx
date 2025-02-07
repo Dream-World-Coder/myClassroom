@@ -12,6 +12,7 @@ const CoursePage = () => {
     const [courseData, setCourseData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [activeLink, setActiveLink] = useState("My Courses");
     // const { getToken } = useAuth(); // Assuming you have a method to get JWT token
 
     const getCourseData = async () => {
@@ -72,7 +73,12 @@ const CoursePage = () => {
                         : "bg-gray-50 text-gray-800"
                 }`}
         >
-            <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+            <Header
+                isDarkMode={isDarkMode}
+                setIsDarkMode={setIsDarkMode}
+                activeLink={activeLink}
+                setActiveLink={setActiveLink}
+            />
             <CourseCard
                 isDarkMode={isDarkMode}
                 courseData={courseData}

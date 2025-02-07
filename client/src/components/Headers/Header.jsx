@@ -1,17 +1,20 @@
 import { useState } from "react";
 import { Menu, X, Search, Moon, Sun } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 // This is not good i guess, why pass isDarkMode and its setter as prop,
 // instead just get it from localstorage and only header will have the option
 // to change it. --> not refreshing
 
-const Header = ({ isDarkMode, setIsDarkMode }) => {
+const Header = ({
+    isDarkMode,
+    setIsDarkMode,
+    activeLink = "Home",
+    setActiveLink,
+}) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [activeLink, setActiveLink] = useState("Home");
-    const { user, token, logout } = useAuth();
-    const navigate = useNavigate();
+    // const [activeLink, setActiveLink] = useState("Home");
+    const { user, token } = useAuth();
     const isAuthenticated = !!(user && token);
 
     const toggleDarkMode = () => {
@@ -19,11 +22,8 @@ const Header = ({ isDarkMode, setIsDarkMode }) => {
         setIsDarkMode(newMode);
         localStorage.setItem("isDarkModeOn", JSON.stringify(newMode));
     };
-
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-        setIsMenuOpen(false);
+    const changeActiveLink = (item) => {
+        setActiveLink(item.name);
     };
 
     const navLinks = [
@@ -75,9 +75,9 @@ const Header = ({ isDarkMode, setIsDarkMode }) => {
                                         <a
                                             key={index}
                                             href={item.href}
-                                            onClick={() =>
-                                                setActiveLink(item.name)
-                                            }
+                                            onClick={(item) => {
+                                                changeActiveLink(item);
+                                            }}
                                             className={`h-16 inline-flex items-center px-1 text-sm font-medium
                                                     hover:text-lime-500
                                                     ${

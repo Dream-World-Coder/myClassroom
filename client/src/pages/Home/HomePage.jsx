@@ -23,6 +23,7 @@ const HomeDashboard = () => {
         return savedGoals ? JSON.parse(savedGoals) : [];
     });
     const [newGoal, setNewGoal] = useState("");
+    const [activeLink, setActiveLink] = useState("Home");
 
     useEffect(() => {
         localStorage.setItem("studyGoals", JSON.stringify(goals));
@@ -88,7 +89,12 @@ const HomeDashboard = () => {
         <div
             className={`min-h-screen font-[poppins] ${highContrast ? "invert" : "invert-0"} ${isDarkMode ? "bg-stone-900 text-white" : "bg-gray-50"}`}
         >
-            <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+            <Header
+                isDarkMode={isDarkMode}
+                setIsDarkMode={setIsDarkMode}
+                activeLink={activeLink}
+                setActiveLink={setActiveLink}
+            />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
                 <section className="mb-12">

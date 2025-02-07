@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 
 import LandingPage from "./pages/LandingPage/LandingPage";
 import HomeDashboard from "./pages/Home/HomePage";
+import ProfilePage from "./pages/profile/ProfilePage";
 
 import AddCoursePage from "./pages/Courses/AddCourse";
 import AllCourses from "./pages/Courses/AllCourses";
@@ -23,6 +24,15 @@ export default function App() {
                 <Routes>
                     <Route path="/lp" element={<LandingPage />} />
                     <Route path="/" element={<HomeDashboard />} />
+
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <ProfilePage />
+                            </ProtectedRoute>
+                        }
+                    />
 
                     <Route
                         path="/add-course"

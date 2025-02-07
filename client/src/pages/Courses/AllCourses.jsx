@@ -24,6 +24,7 @@ export default function AllCourses() {
     const [allCourses, setAllCourses] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [activeLink, setActiveLink] = useState("My Courses");
 
     useEffect(() => {
         const getAllCourses = async () => {
@@ -86,7 +87,12 @@ export default function AllCourses() {
                     : "bg-gray-50 text-gray-800"
             }`}
         >
-            <Header isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+            <Header
+                isDarkMode={isDarkMode}
+                setIsDarkMode={setIsDarkMode}
+                activeLink={activeLink}
+                setActiveLink={setActiveLink}
+            />
 
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <h1 className="text-3xl font-bold mb-8">My Courses</h1>
