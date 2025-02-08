@@ -9,7 +9,6 @@ import {
     Pencil,
     Check,
     X,
-    Building,
     BookOpen,
     Clock,
 } from "lucide-react";

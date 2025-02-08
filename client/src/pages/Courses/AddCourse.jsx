@@ -173,7 +173,7 @@ const AddCoursePage = () => {
             className={`min-h-screen transition-colors duration-300 font-[poppins]
                 ${
                     isDarkMode
-                        ? "bg-stone-900 text-stone-100"
+                        ? "bg-[#111] text-stone-100"
                         : "bg-gray-50 text-gray-800"
                 }`}
         >
@@ -216,7 +216,7 @@ const AddCoursePage = () => {
                                     focus:outline-hidden transition duration-300
                                     ${
                                         isDarkMode
-                                            ? "bg-stone-800 border-stone-700 text-stone-100 focus:border-lime-600"
+                                            ? "bg-[#111] border-[#222] text-stone-100 focus:border-lime-600"
                                             : "bg-white border-gray-300 text-gray-800 focus:border-lime-500"
                                     }`}
                                         placeholder={item.placeholder}
@@ -243,7 +243,7 @@ const AddCoursePage = () => {
                                         p-2 rounded-full
                                         ${
                                             isDarkMode
-                                                ? "bg-stone-700 text-stone-200 hover:bg-stone-600"
+                                                ? "bg-[#222] text-stone-200 hover:bg-stone-600"
                                                 : "bg-lime-500 text-white hover:bg-lime-600"
                                         }`}
                                     >
@@ -271,7 +271,7 @@ const AddCoursePage = () => {
                                                 focus:outline-hidden transition duration-300
                                                 ${
                                                     isDarkMode
-                                                        ? "bg-stone-800 border-stone-700 text-stone-100"
+                                                        ? "bg-[#111] border-[#222] text-stone-100"
                                                         : "bg-white border-gray-300 text-gray-800"
                                                 }`}
                                             />
@@ -296,7 +296,7 @@ const AddCoursePage = () => {
                                                 focus:outline-hidden transition duration-300
                                                 ${
                                                     isDarkMode
-                                                        ? "bg-stone-800 border-stone-700 text-stone-100 focus:border-lime-600"
+                                                        ? "bg-[#111] border-[#222] text-stone-100 focus:border-lime-600"
                                                         : "bg-white border-gray-300 text-gray-800 focus:border-lime-500"
                                                 }`}
                                             />
@@ -357,7 +357,7 @@ const AddCoursePage = () => {
                     </h2>
 
                     <div
-                        className={`rounded-lg p-2 ${isDarkMode ? "bg-stone-800 border-stone-700" : "bg-white border-gray-200"} border`}
+                        className={`rounded-lg border ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}
                     >
                         {previewCourse ? (
                             <CourseCard
@@ -366,7 +366,7 @@ const AddCoursePage = () => {
                             />
                         ) : (
                             <p
-                                className={`text-center ${isDarkMode ? "text-stone-500" : "text-gray-500"}`}
+                                className={`text-center p-3 ${isDarkMode ? "text-stone-500" : "text-gray-500"}`}
                             >
                                 Course preview will appear here
                             </p>

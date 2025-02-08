@@ -224,7 +224,7 @@ const HomeDashboard = () => {
                                     placeholder="Add a new goal..."
                                     className={`flex-1 max-w-[80%] px-4 py-2 text-sm md:text-base border rounded-sm focus:outline-hidden focus:ring-1 focus:ring-lime-500 ${
                                         isDarkMode
-                                            ? "border-stone-700 bg-stone-800"
+                                            ? "border-stone-800 bg-[#111]"
                                             : "border-gray-200"
                                     }`}
                                 />
@@ -301,7 +301,7 @@ const HomeDashboard = () => {
                                     placeholder="Add remainder eg. next exam date."
                                     className={`flex-1 max-w-[80%] px-4 py-2 text-sm md:text-base border rounded-sm focus:outline-hidden focus:ring-1 focus:ring-lime-500 ${
                                         isDarkMode
-                                            ? "border-stone-700 bg-stone-800"
+                                            ? "border-stone-800 bg-[#111]"
                                             : "border-gray-200"
                                     }`}
                                 />

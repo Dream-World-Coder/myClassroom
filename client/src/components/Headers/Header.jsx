@@ -42,7 +42,7 @@ const Header = ({
 
     return (
         <header
-            className={`sticky top-0 z-50 border-b ${isDarkMode ? "bg-stone-900 border-stone-800 text-white" : "bg-white border-gray-200"}`}
+            className={`sticky top-0 z-50 border-b ${isDarkMode ? "bg-[#111] border-[#222] text-white" : "bg-white border-gray-200"}`}
         >
             <div className="max-w-7xl mx-auto">
                 <div className="relative px-4 flex items-center justify-between h-16">
@@ -109,7 +109,7 @@ const Header = ({
                                     type="text"
                                     placeholder="Search Your Courses"
                                     className={`pl-10 pr-4 py-2 text-sm rounded-sm border
-                                    border-gray-200 ${isDarkMode ? "border-stone-700 bg-stone-800" : ""}
+                                    border-gray-200 ${isDarkMode ? "border-stone-800 bg-[#111]" : ""}
                                     focus:outline-hidden focus:ring-1 focus:ring-lime-500`}
                                 />
                             </div>

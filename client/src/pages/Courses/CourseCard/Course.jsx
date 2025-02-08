@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
     Link,
     Clock,
@@ -6,30 +6,61 @@ import {
     BookText,
     DraftingCompass,
     ChevronLeft,
-    Maximize2,
-    Volume2,
-    Settings,
-    SkipBack,
-    SkipForward,
     Pause,
-    X,
-    MinusCircle,
-    PlusCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
+import { useAuth } from "../../../contexts/AuthContext";
+import toast from "react-hot-toast";
 
 const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(80);
-    const [showVolumeControl, setShowVolumeControl] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [streamUrl, setStreamUrl] = useState(null);
+    const { token } = useAuth();
 
     const VideoPlayer = ({ video }) => {
-        if (!video) return null;
+        const videoRef = useRef(null);
+
+        async function handleVideoPlay(videoUrl) {
+            setIsPlaying(!isPlaying);
+            setIsLoading(true);
+
+            if (!token) {
+                console.error("Authorization token is NULL.");
+                return;
+            }
+
+            const apiUrl = "http://127.0.0.1:5050/api/v1/stream";
+
+            const options = {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ videoUrl }),
+            };
+
+            try {
+                const response = await fetch(apiUrl, options);
+                const data = await response.json();
+
+                if (data.streamUrl) {
+                    setStreamUrl(data.streamUrl);
+                } else {
+                    console.error("Error getting stream URL:", data);
+                    toast.error("Error getting stream URL");
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
 
         return (
             <div
@@ -38,16 +69,30 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
                 <div className="relative">
                     {/* Video Container */}
                     <div className="aspect-video w-full bg-black relative group">
-                        <img
-                            src={video.videoThumbnailUrl}
-                            alt={video.videoTitle}
-                            className="w-full h-full object-cover opacity-60"
-                        />
+                        {streamUrl ? (
+                            <video
+                                ref={videoRef}
+                                controls
+                                autoPlay={isPlaying}
+                                className="w-full"
+                            >
+                                <source src={streamUrl} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        ) : (
+                            <img
+                                src={video.videoThumbnailUrl}
+                                alt={video.videoTitle}
+                                className="w-full h-full object-cover opacity-60"
+                            />
+                        )}
 
                         {/* Center Play Button */}
                         <div className="absolute inset-0 flex items-center justify-center">
                             <button
-                                onClick={() => setIsPlaying(!isPlaying)}
+                                onClick={() => {
+                                    handleVideoPlay(video.videoUrl);
+                                }}
                                 className="w-16 h-16 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all group-hover:scale-110"
                             >
                                 {isPlaying ? (
@@ -57,112 +102,7 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
                                 )}
                             </button>
                         </div>
-
-                        {/* Video Controls Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                            {/* Progress Bar */}
-                            <div className="mb-4">
-                                <Slider
-                                    defaultValue={[0]}
-                                    max={100}
-                                    step={1}
-                                    className="w-full"
-                                />
-                            </div>
-
-                            {/* Controls Row */}
-                            <div className="flex items-center justify-between text-white">
-                                <div className="flex items-center gap-4">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 hover:bg-white/20"
-                                    >
-                                        <SkipBack className="h-4 w-4" />
-                                    </Button>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 hover:bg-white/20"
-                                        onClick={() => setIsPlaying(!isPlaying)}
-                                    >
-                                        {isPlaying ? (
-                                            <Pause className="h-4 w-4" />
-                                        ) : (
-                                            <Play className="h-4 w-4 ml-0.5" />
-                                        )}
-                                    </Button>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 hover:bg-white/20"
-                                    >
-                                        <SkipForward className="h-4 w-4" />
-                                    </Button>
-
-                                    <div className="relative">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 hover:bg-white/20"
-                                            onClick={() =>
-                                                setShowVolumeControl(
-                                                    !showVolumeControl,
-                                                )
-                                            }
-                                        >
-                                            <Volume2 className="h-4 w-4" />
-                                        </Button>
-
-                                        {showVolumeControl && (
-                                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 p-3 bg-black/90 rounded-lg backdrop-blur-sm">
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <Slider
-                                                        value={[volume]}
-                                                        onValueChange={(
-                                                            value,
-                                                        ) =>
-                                                            setVolume(value[0])
-                                                        }
-                                                        max={100}
-                                                        step={1}
-                                                        orientation="vertical"
-                                                        className="h-24"
-                                                    />
-                                                    <span className="text-xs">
-                                                        {volume}%
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <span className="text-sm">
-                                        0:00 / {video.videoDuration}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 hover:bg-white/20"
-                                    >
-                                        <Settings className="h-4 w-4" />
-                                    </Button>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 hover:bg-white/20"
-                                    >
-                                        <Maximize2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                        {/* controls -- not needed */}
                     </div>
 
                     {/* Video Info */}
@@ -182,9 +122,7 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
     };
 
     return (
-        <div
-            className={`min-h-screen ${isDarkMode ? "bg-stone-900" : "bg-gray-50"}`}
-        >
+        <div className={`${isDarkMode ? "bg-[#111]" : "bg-gray-50"}`}>
             {/* Mobile Layout */}
             <div className="lg:hidden flex flex-col min-h-screen">
                 {selectedVideo && (
@@ -204,7 +142,7 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
                 )}
 
                 <Card
-                    className={`flex-1 border-0 ${isDarkMode ? "bg-stone-900" : "bg-gray-50"}`}
+                    className={`flex-1 border-0 ${isDarkMode ? "bg-[#222]" : "bg-gray-50"}`}
                 >
                     <CardContent className="p-0">
                         <CourseInfo
@@ -227,7 +165,7 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
                 className={`hidden lg:grid ${selectedVideo ? "grid-cols-2" : "grid-cols-1"} gap-6 p-6 max-w-8xl mx-auto rounded-lg`}
             >
                 <Card
-                    className={`h-[calc(100vh-3rem)] ${isDarkMode ? "bg-stone-800 border-stone-700" : "bg-white border-gray-100"}`}
+                    className={`h-fit ${isDarkMode ? "bg-[#222] border-stone-800" : "bg-white border-gray-100"}`}
                 >
                     <CardContent className="p-6">
                         <CourseInfo
@@ -254,33 +192,7 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
                         <VideoPlayer video={selectedVideo} />
                     </div>
                 ) : (
-                    <div
-                        className={`h-[calc(100vh-3rem)] sticky top-6 flex items-center justify-center rounded-md
-                            transform scale-x-0 transition-all duration-300 ${
-                                isDarkMode
-                                    ? "bg-stone-800 border-stone-700"
-                                    : "bg-white"
-                            } ${rounded}`}
-                    >
-                        <div className="text-center">
-                            <Play
-                                className={`w-16 h-16 mx-auto mb-4 ${
-                                    isDarkMode
-                                        ? "text-stone-700"
-                                        : "text-stone-200"
-                                }`}
-                            />
-                            <h3
-                                className={`text-xl font-medium ${
-                                    isDarkMode
-                                        ? "text-stone-400"
-                                        : "text-stone-600"
-                                }`}
-                            >
-                                Select a video to start watching
-                            </h3>
-                        </div>
-                    </div>
+                    <></>
                 )}
             </div>
         </div>
@@ -366,9 +278,9 @@ const CourseInfo = ({ isDarkMode, courseData, className = "" }) => (
 );
 
 const VideoList = ({ isDarkMode, videos, onVideoSelect, selectedVideo }) => (
-    <ScrollArea className="h-[calc(100vh-20rem)]">
+    <ScrollArea className="h-fit">
         <div
-            className={`space-y-2 px-6 ${isDarkMode ? "divide-stone-700" : "divide-stone-200"}`}
+            className={`space-y-2 px-6 divide-y ${isDarkMode ? "divide-stone-700" : "divide-stone-200"}`}
         >
             {videos?.map((video, index) => (
                 <button
@@ -377,10 +289,10 @@ const VideoList = ({ isDarkMode, videos, onVideoSelect, selectedVideo }) => (
                     className={`w-full text-left p-3 rounded-lg transition-colors ${
                         selectedVideo === video
                             ? isDarkMode
-                                ? "bg-stone-700"
+                                ? "bg-stone-600"
                                 : "bg-stone-100"
                             : isDarkMode
-                              ? "hover:bg-stone-700/50"
+                              ? "hover:bg-stone-600/50"
                               : "hover:bg-stone-100"
                     }`}
                 >

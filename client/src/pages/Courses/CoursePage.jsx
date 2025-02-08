@@ -69,7 +69,7 @@ const CoursePage = () => {
             className={`min-h-screen transition-colors duration-300 font-[poppins]
                 ${
                     isDarkMode
-                        ? "bg-stone-900 text-stone-100"
+                        ? "bg-[#111] text-stone-100"
                         : "bg-gray-50 text-gray-800"
                 }`}
         >
