@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-// import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import Header from "../../components/Headers/Header";
 import CourseCard from "./CourseCard/Course";
 import { useParams } from "react-router-dom";
@@ -13,13 +13,10 @@ const CoursePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeLink, setActiveLink] = useState("My Courses");
-    // const { getToken } = useAuth(); // Assuming you have a method to get JWT token
+    const { token } = useAuth();
 
     const getCourseData = async () => {
         try {
-            // Get the JWT token from auth context
-            // const token = await getToken();
-            const token = localStorage.getItem("token") || null;
             if (!token) {
                 console.error("\n\nAuthorisation token is NULL.");
                 return;

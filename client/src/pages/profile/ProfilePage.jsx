@@ -227,7 +227,7 @@ const ProfilePage = () => {
                     disabled={!isEditing}
                     className={
                         isDarkMode
-                            ? "bg-stone-700 border-stone-600"
+                            ? "bg-[#111] border-zinc-700"
                             : "border-slate-300"
                     }
                 />
@@ -244,14 +244,14 @@ const ProfilePage = () => {
                 setActiveLink={setActiveLink}
             />
             <div
-                className={`min-h-screen p-6 ${isDarkMode ? "bg-stone-900 text-white" : "bg-gray-50 text-black"}`}
+                className={`min-h-screen p-6 ${isDarkMode ? "bg-[#111] text-white" : "bg-gray-50 text-black"}`}
             >
                 <div className="max-w-4xl mx-auto space-y-6">
                     {/* Header Card */}
                     <Card
                         className={
                             isDarkMode
-                                ? "bg-stone-800 border-stone-700"
+                                ? "bg-[#111] border-[#222]"
                                 : "bg-white border-gray-200"
                         }
                     >
@@ -284,7 +284,14 @@ const ProfilePage = () => {
                                                 {profile.username}
                                             </h1>
                                             <div className="flex flex-wrap gap-2 mb-4">
-                                                <Badge variant="secondary">
+                                                <Badge
+                                                    variant="outline"
+                                                    className={
+                                                        isDarkMode
+                                                            ? "border-stone-600"
+                                                            : ""
+                                                    }
+                                                >
                                                     {/* {profile.age} */}
                                                     Student
                                                 </Badge>
@@ -381,7 +388,7 @@ const ProfilePage = () => {
                     <Card
                         className={
                             isDarkMode
-                                ? "bg-stone-800 border-stone-700"
+                                ? "bg-[#111] border-[#222]"
                                 : "bg-white border-gray-200"
                         }
                     >
