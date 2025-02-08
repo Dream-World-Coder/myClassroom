@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     User,
     Mail,
@@ -21,30 +21,29 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Header from "../../components/Headers/Header";
+import LogoutButton from "./components";
 
 const ProfilePage = () => {
     const [isDarkMode, setIsDarkMode] = useState(
         () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
     );
     const [activeLink, setActiveLink] = useState("Profile");
-    const { logout } = useAuth();
+    const { logout, token } = useAuth();
     const navigate = useNavigate();
 
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState({
-        // will handle seperately cuz email is gonna be fixed
-        // and for usernamea and password change you hvae to re enter the password
+        profileImg: "",
         username: "johndoe123",
         email: "john.doe@example.com",
-        phone: "+1 234 567 8900",
-        role: "Student",
+        phone: null,
+        age: null,
         actualName: null,
         schoolName: null,
         address: null,
         currentClass: null,
-        joinDate: "January 2024",
-        lastActive: "2 hours ago",
-        enrolledCourses: 5,
+        courses: [],
+        lastFiveLogin: [],
     });
 
     const [editedProfile, setEditedProfile] = useState(profile);
@@ -57,6 +56,42 @@ const ProfilePage = () => {
     const handleSave = () => {
         setProfile(editedProfile);
         setIsEditing(false);
+        async function updateUserData() {
+            try {
+                if (!token) {
+                    console.error("\n\nAuthorisation token is NULL.");
+                    return;
+                }
+                const response = await fetch(
+                    `http://127.0.0.1:5050/api/v1/u/update`,
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            actualName: profile.actualName,
+                            schoolName: profile.schoolName,
+                            address: profile.address,
+                            currentClass: profile.currentClass,
+                        }),
+                    },
+                );
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(
+                        errorData.error || "Failed to fetch course data",
+                    );
+                }
+                const data = await response.json();
+                console.log(data.message);
+            } catch (err) {
+                console.error("Error fetching course data:", err);
+            }
+        }
+        updateUserData();
     };
 
     const handleCancel = () => {
@@ -76,7 +111,53 @@ const ProfilePage = () => {
         navigate("/login");
     };
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+
+        const dd = date.getDate().toString().padStart(2, "0");
+        const mm = (date.getMonth() + 1).toString().padStart(2, "0"); // +1 because months are 0-indexed
+        const yy = date.getFullYear().toString().slice(-2);
+        const hrs = date.getHours().toString().padStart(2, "0");
+        const mins = date.getMinutes().toString().padStart(2, "0");
+
+        return `${dd}-${mm}-${yy} ${hrs}:${mins}`;
+    };
+
+    useEffect(() => {
+        // fetch user data and set setProfile
+        async function fetchUserData() {
+            try {
+                if (!token) {
+                    console.error("\n\nAuthorisation token is NULL.");
+                    return;
+                }
+                const response = await fetch(`http://127.0.0.1:5050/api/v1/u`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(
+                        errorData.error || "Failed to fetch course data",
+                    );
+                }
+                const data = await response.json();
+                await setProfile(data);
+            } catch (err) {
+                console.error("Error fetching course data:", err);
+            }
+        }
+        fetchUserData();
+    }, [token]);
+
     const profileFields = [
+        // handle seperately cuz email is gonna be fixed -> no change
+        // and for username and password change you hvae to re enter the password,
+        // localhost:5050/api/v1/u/change-password, /api/v1/u/change-username
         // {
         //     id: "username",
         //     label: "Username",
@@ -93,37 +174,37 @@ const ProfilePage = () => {
             id: "phone",
             label: "Phone",
             icon: Phone,
-            placeholder: "Enter phone number",
+            placeholder: `${profile.phoneNumber || "your phone number"}`,
         },
         {
             id: "actualName",
             label: "Full Name",
             icon: User,
-            placeholder: "Enter your full name",
+            placeholder: `${profile.actualName || "your full name"}`,
         },
         {
             id: "schoolName",
             label: "School Name",
             icon: School,
-            placeholder: "Enter your school name",
+            placeholder: `${profile.schoolName || "your school name"}`,
         },
         {
             id: "currentClass",
             label: "Current Class",
             icon: BookOpen,
-            placeholder: "Enter your current class",
+            placeholder: `${profile.currentClass || "your current class of studying"}`,
         },
         {
             id: "address",
             label: "Address",
             icon: MapPin,
-            placeholder: "Enter your address",
+            placeholder: `${profile.address || "your address"}`,
         },
         {
-            id: "role",
-            label: "Role",
+            id: "age",
+            label: "Age",
             icon: GraduationCap,
-            placeholder: "Enter your role",
+            placeholder: `${profile.age || "Enter your age"}`,
         },
     ];
 
@@ -178,7 +259,12 @@ const ProfilePage = () => {
                         <CardContent className="pt-6">
                             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                                 <Avatar className="w-24 h-24">
-                                    <AvatarImage src="https://picsum.photos/200" />
+                                    <AvatarImage
+                                        src={
+                                            profile.profileImg ||
+                                            "https://picsum.photos/200"
+                                        }
+                                    />
                                     <AvatarFallback className="text-2xl">
                                         {profile.username
                                             .slice(0, 2)
@@ -196,12 +282,12 @@ const ProfilePage = () => {
                                                         : "text-stone-900"
                                                 }`}
                                             >
-                                                {profile.actualName ||
-                                                    profile.username}
+                                                {profile.username}
                                             </h1>
                                             <div className="flex flex-wrap gap-2 mb-4">
                                                 <Badge variant="secondary">
-                                                    {profile.role}
+                                                    {/* {profile.age} */}
+                                                    Student
                                                 </Badge>
                                                 <Badge
                                                     variant="outline"
@@ -211,7 +297,7 @@ const ProfilePage = () => {
                                                             : ""
                                                     }
                                                 >
-                                                    {profile.enrolledCourses}{" "}
+                                                    {profile.courses.length}{" "}
                                                     Courses Enrolled
                                                 </Badge>
                                             </div>
@@ -255,18 +341,10 @@ const ProfilePage = () => {
                                                     </Button>
                                                 )}
                                             </div>
-                                            <Button
-                                                size="sm"
-                                                onClick={handleLogout}
-                                                className={`border
-                                                    ${
-                                                        isDarkMode
-                                                            ? "text-red-400 border-red-400 bg-red-400/10"
-                                                            : "text-red-600 border-red-600 bg-red-600/10"
-                                                    }`}
-                                            >
-                                                Logout
-                                            </Button>
+                                            <LogoutButton
+                                                isDarkMode={isDarkMode}
+                                                handleLogout={handleLogout}
+                                            />
                                         </div>
                                     </div>
 
@@ -278,8 +356,8 @@ const ProfilePage = () => {
                                                     : "text-stone-600"
                                             }`}
                                         >
-                                            <User className="w-4 h-4" />
-                                            Member since {profile.joinDate}
+                                            <Mail className="w-4 h-4" />
+                                            {profile.email}
                                         </div>
                                         <div
                                             className={`flex items-center gap-2 ${
@@ -289,7 +367,10 @@ const ProfilePage = () => {
                                             }`}
                                         >
                                             <Clock className="w-4 h-4" />
-                                            Last active {profile.lastActive}
+                                            Last login{" "}
+                                            {formatDate(
+                                                profile.lastFiveLogin[4],
+                                            )}
                                         </div>
                                     </div>
                                 </div>
