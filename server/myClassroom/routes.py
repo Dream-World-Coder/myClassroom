@@ -1,11 +1,15 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, stream_with_context, Response
 from flask_jwt_extended import get_jwt_identity, jwt_required, create_access_token
 from werkzeug.security import generate_password_hash
 from myClassroom import mongo
 from myClassroom.models import User
 from .utils import extract_playlist_videos
 import datetime
+import requests
+import yt_dlp
 import re
+
+
 # abcde1XY
 api_bp = Blueprint("api_bp", __name__)
 
@@ -203,10 +207,6 @@ def get_courses():
         print(f"\n\nError: {e}\n")
         return jsonify({"error": "Internal Server Error"}), 500
 
-
-
-
-
 # specific course
 # -----------------
 @api_bp.route("/courses/<course_id>", methods=['GET'])
@@ -232,6 +232,68 @@ def __send_course_data(course_id):
     except Exception as e:
         print(f"\n\nError: {e}\n")
         return jsonify({"error": "Internal Server Error"}), 500
+
+
+
+
+@api_bp.route("/stream", methods=["POST"])
+@jwt_required()
+def stream_video():
+    current_user_email = get_jwt_identity()
+    user = User.find_by_email(current_user_email)
+    if not user:
+        return jsonify({"error": "User Not found"}), 404
+
+    data = request.json or {}
+    video_url = data.get("videoUrl")
+    if not video_url:
+        return jsonify({"error": "video url not found"}), 400
+
+    # Configure yt-dlp
+    ydl_opts = {
+        'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
+        'quiet': True,
+    }
+    print("----------")
+
+    try:
+        # Get video info and direct URL
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=False)
+            video_url = info['url']
+            content_type = info.get('ext', 'mp4')
+
+        # Function to stream video chunks
+        def generate():
+            headers = {}
+            if request.headers.get('Range'):
+                headers['Range'] = request.headers.get('Range')
+
+            response = requests.get(video_url, headers=headers, stream=True)
+
+            if response.status_code == 206:
+                return Response(response.iter_content(chunk_size=8192),
+                              status=206,
+                              mimetype=f'video/{content_type}',
+                              headers={
+                                  'Accept-Ranges': 'bytes',
+                                  'Content-Range': response.headers.get('Content-Range'),
+                                  'Content-Length': response.headers.get('Content-Length'),
+                              })
+
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+
+        return Response(
+            stream_with_context(generate()),
+            mimetype=f'video/{content_type}',
+            headers={'Accept-Ranges': 'bytes'}
+        )
+
+    except Exception as e:
+        print(f'error: {e}')
+        return jsonify({"error": str(e)}), 500
 
 
 
