@@ -94,18 +94,46 @@ def __route_logout_user():
 def __route_get_user_data():
     current_user_email = get_jwt_identity()
     user = User.find_by_email(current_user_email)
+
+    if not user:
+        return jsonify({'error':'user not found'}), 404
+
     return jsonify({
         "username": user.username,
         "email": user.email,
-        "ipAddress": user.ipAddress,
-        "deviceInfo": user.deviceInfo,
-        "acctualName": user.acctualName,
+        "profileImg": user.profileImg or '',
+        "actualName": user.actualName,
         "schoolName": user.schoolName,
         "address": user.address,
         "currentClass": user.currentClass,
         "lastFiveLogin": user.lastFiveLogin,
         "courses": user.courses,
     }), 200
+
+@api_bp.route('/u/update', methods=["POST"])
+@jwt_required()
+def __route_update_user_data():
+    current_user_email = get_jwt_identity()
+    user = User.find_by_email(current_user_email)
+
+    if not user:
+        return jsonify({'error':'user not found'}), 404
+
+    data = request.json or {}
+    print(data)
+
+    try:
+        actualName = data.get('actualName')
+        schoolName =  data.get('schoolName')
+        address = data.get('address')
+        currentClass = data.get('currentClass')
+
+        user.update_additional_details(actualName, schoolName, address, currentClass)
+
+        return jsonify({"message": "user details updated"}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'error': str(e)}), 500
 
 
 
