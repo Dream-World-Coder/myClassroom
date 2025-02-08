@@ -52,6 +52,28 @@ class User():
             inserted_id = mongo.db.users.insert_one(user_data).inserted_id
             self.id = str(inserted_id)
 
+    def get_courses(self):
+        try:
+            user_dictionary = mongo.db.users.find_one({'username': self.username})
+            return user_dictionary['courses']
+        except Exception as e:
+            print(e)
+            return None
+
+    def get_course_data(self, course_id):
+        course_id = int(course_id) - 1
+        try:
+            # un comment if error needed for ui testingss
+            # if course_id not in range(0, len(mongo.db.users.find_one({'username': self.username}).courses)):
+            user_dictionary = mongo.db.users.find_one({'username': self.username})
+            if course_id not in range(0, len(user_dictionary['courses'])):
+                print("not in range")
+                return None
+            return user_dictionary['courses'][course_id]
+        except Exception as e:
+            print(e)
+            return None
+
     @staticmethod
     def find_by_email(email):
         user = mongo.db.users.find_one({"email": email})

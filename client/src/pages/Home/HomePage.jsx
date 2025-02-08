@@ -7,8 +7,10 @@ import {
     Trash2,
     ListTodo,
 } from "lucide-react";
-import courses from "../../assets/Courses";
 import Header from "../../components/Headers/Header";
+import { useAuth } from "../../contexts/AuthContext";
+import AllCourses from "../Courses/AllCourses";
+import { Calendar } from "@/components/ui/calendar";
 
 // + attendance tracker
 // add  a powerful notes section for better oraganising study materials
@@ -23,7 +25,9 @@ const HomeDashboard = () => {
         return savedGoals ? JSON.parse(savedGoals) : [];
     });
     const [newGoal, setNewGoal] = useState("");
+    const [date, setDate] = useState(new Date());
     const [activeLink, setActiveLink] = useState("Home");
+    const { user, token } = useAuth();
 
     useEffect(() => {
         localStorage.setItem("studyGoals", JSON.stringify(goals));
@@ -87,7 +91,8 @@ const HomeDashboard = () => {
 
     return (
         <div
-            className={`min-h-screen font-[poppins] ${highContrast ? "invert" : "invert-0"} ${isDarkMode ? "bg-stone-900 text-white" : "bg-gray-50"}`}
+            className={`min-h-screen font-[poppins] ${highContrast ? "invert" : "invert-0"}  transition-all duration-300
+                ${isDarkMode ? "bg-stone-900 text-white" : "bg-gray-50"}`}
         >
             <Header
                 isDarkMode={isDarkMode}
@@ -97,7 +102,7 @@ const HomeDashboard = () => {
             />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
-                <section className="mb-12">
+                <section className="mb-12 transition-all duration-300">
                     <h2
                         className={`text-xl font-semibold mb-2 md:mb-6 ${isDarkMode ? "text-stone-200" : ""}`}
                     >
@@ -108,16 +113,9 @@ const HomeDashboard = () => {
                     >
                         <div className="flex items-start gap-6 p-6">
                             <div
-                                className={`h-24 w-24 rounded-xs flex items-center justify-center ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
+                                className={`h-24 w-24 rounded-md overflow-hidden flex items-center justify-center ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
                             >
-                                <BookOpen
-                                    size={48}
-                                    className={
-                                        isDarkMode
-                                            ? "text-stone-400"
-                                            : "text-stone-600"
-                                    }
-                                />
+                                <img src={"https://picsum.photos/200"} alt="" />
                             </div>
                             <div className="flex-1">
                                 <div
@@ -165,7 +163,10 @@ const HomeDashboard = () => {
                     </div>
                 </section>
 
-                <section className="mb-12 flex flex-col-reverse md:flex-row items-start justify-center gap-12 md:gap-4">
+                <section
+                    className="mb-12 flex flex-col-reverse md:flex-row items-start justify-center
+                    gap-12 md:gap-4 transition-all duration-300"
+                >
                     <div className="flex-1 size-full">
                         <h2
                             className={`text-xl font-semibold mb-2 md:mb-6 flex justify-start items-center gap-2 ${isDarkMode ? "text-stone-200" : ""}`}
@@ -309,68 +310,32 @@ const HomeDashboard = () => {
                     </div>
                 </section>
 
-                <section>
-                    <h2
-                        className={`text-xl font-semibold mb-6 ${isDarkMode ? "text-stone-200" : ""}`}
-                    >
-                        All Courses
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {courses.map((course) => (
-                            <div
-                                key={course.id}
-                                className={`border rounded-xs ${isDarkMode ? "bg-stone-800 border-stone-700" : "bg-white border-gray-200"}`}
-                            >
-                                <div className="p-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <GraduationCap
-                                            size={24}
-                                            className={
-                                                isDarkMode
-                                                    ? "text-stone-400"
-                                                    : "text-stone-600"
-                                            }
-                                        />
-                                        <span
-                                            className={
-                                                isDarkMode
-                                                    ? "text-stone-400"
-                                                    : "text-gray-600"
-                                            }
-                                        >
-                                            {course.duration}
-                                        </span>
-                                    </div>
-                                    <h3
-                                        className={`text-lg font-semibold mb-2 ${isDarkMode ? "text-stone-200" : ""}`}
-                                    >
-                                        {course.title}
-                                    </h3>
-                                    <p
-                                        className={`text-sm mb-4 ${isDarkMode ? "text-stone-400" : "text-gray-600"}`}
-                                    >
-                                        by {course.provider}
-                                    </p>
-                                    <div
-                                        className={`h-1 w-full rounded-full overflow-hidden ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
-                                    >
-                                        <div
-                                            className="h-full bg-lime-500 rounded-full"
-                                            style={{
-                                                width: `${course.progress}%`,
-                                            }}
-                                        />
-                                    </div>
-                                    <div
-                                        className={`mt-2 text-sm ${isDarkMode ? "text-stone-400" : "text-gray-600"}`}
-                                    >
-                                        {course.progress}% Complete
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                {/* calander: attandance tracker */}
+                {/* adjustable grid + daily analysis bar & calendar */}
+                {/* <section>
+                    <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        className="rounded-md border shadow"
+                    />
+                </section> */}
+
+                {!!user && !!token && (
+                    <section>
+                        <h2
+                            className={`text-xl font-semibold mb-6 ${isDarkMode ? "text-stone-200" : ""}`}
+                        >
+                            All Courses
+                        </h2>
+
+                        {/* only if logged in */}
+                        <AllCourses
+                            asComponent={true}
+                            parentDarkMode={isDarkMode}
+                        />
+                    </section>
+                )}
             </main>
 
             <a

@@ -11,8 +11,8 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", os.urandom(512))
     REMEMBER_COOKIE_DURATION = timedelta(days=10)
     JWT_SECRET_KEY = SECRET_KEY
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=14)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=17)
 
     @staticmethod
     def init_app(app):

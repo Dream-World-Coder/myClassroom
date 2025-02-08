@@ -137,7 +137,7 @@ const useAuth = () => {
 };
 
 // Type guard for checking if user is authenticated
-const isAuthenticated = (user, token) => {
+export const isAuthenticated = (user, token) => {
     return !!user && !!token;
 };
 

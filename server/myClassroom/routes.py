@@ -153,6 +153,59 @@ def __route_extract_videos_from_url():
         print(f"\n\nError: {e}\n")
         return jsonify({"error": "Internal Server Error"}), 500
 
+# all courses
+# -----------------
+@api_bp.route("/courses", methods=['GET'])
+@jwt_required()
+def get_courses():
+    current_user_email = get_jwt_identity()
+    user = User.find_by_email(current_user_email)
+
+    try:
+        if user:
+            allCoursesData = user.get_courses()
+            if not allCoursesData:
+                return jsonify({"error": "Error extracting courses"}), 400
+
+            return jsonify({"message": "Success", "courses": allCoursesData}), 200
+        else:
+            return jsonify({"error": "User not found"}), 404
+
+    except Exception as e:
+        print(f"\n\nError: {e}\n")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+
+
+
+
+# specific course
+# -----------------
+@api_bp.route("/courses/<course_id>", methods=['GET'])
+@jwt_required()
+def __send_course_data(course_id):
+    current_user_email = get_jwt_identity()
+    user = User.find_by_email(current_user_email)
+    # course_id = request.args.get('courseId') or None
+    if not course_id:
+        return jsonify({"error":"could not get course id"}), 400
+    try:
+        if user:
+            # validate course_id
+            courseData = user.get_course_data(course_id=course_id)
+
+            if not courseData:
+                return jsonify({"error": "Error extracting course data"}), 400
+
+            return jsonify({"message": "Success", "courseData": courseData}), 200
+        else:
+            return jsonify({"error": "User not found"}), 404
+
+    except Exception as e:
+        print(f"\n\nError: {e}\n")
+        return jsonify({"error": "Internal Server Error"}), 500
+
+
 
 # Error handler
 # -----------------

@@ -17,7 +17,10 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, User } from "lucide-react";
 import Header from "../../components/Headers/Header";
 
-export default function AllCourses() {
+export default function AllCourses({
+    asComponent = false,
+    parentDarkMode = true,
+}) {
     const [isDarkMode, setIsDarkMode] = useState(
         () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
     );
@@ -25,6 +28,10 @@ export default function AllCourses() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [activeLink, setActiveLink] = useState("My Courses");
+
+    useEffect(() => {
+        setIsDarkMode(JSON.parse(localStorage.getItem("isDarkModeOn")));
+    }, [parentDarkMode]);
 
     useEffect(() => {
         const getAllCourses = async () => {
@@ -87,15 +94,21 @@ export default function AllCourses() {
                     : "bg-gray-50 text-gray-800"
             }`}
         >
-            <Header
-                isDarkMode={isDarkMode}
-                setIsDarkMode={setIsDarkMode}
-                activeLink={activeLink}
-                setActiveLink={setActiveLink}
-            />
+            {!asComponent && (
+                <Header
+                    isDarkMode={isDarkMode}
+                    setIsDarkMode={setIsDarkMode}
+                    activeLink={activeLink}
+                    setActiveLink={setActiveLink}
+                />
+            )}
 
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                <h1 className="text-3xl font-bold mb-8">My Courses</h1>
+            <div
+                className={`max-w-7xl mx-auto ${asComponent && "py-2 px-0"} ${!asComponent && "py-8 px-4"}`}
+            >
+                {!asComponent && (
+                    <h1 className="text-3xl font-bold mb-8">My Courses</h1>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {allCourses.map((course, index) => (
                         <Card

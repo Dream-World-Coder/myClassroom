@@ -32,6 +32,8 @@ const ProfilePage = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState({
+        // will handle seperately cuz email is gonna be fixed
+        // and for usernamea and password change you hvae to re enter the password
         username: "johndoe123",
         email: "john.doe@example.com",
         phone: "+1 234 567 8900",
@@ -75,18 +77,18 @@ const ProfilePage = () => {
     };
 
     const profileFields = [
-        {
-            id: "username",
-            label: "Username",
-            icon: User,
-            placeholder: "Enter username",
-        },
-        {
-            id: "email",
-            label: "Email",
-            icon: Mail,
-            placeholder: "Enter email address",
-        },
+        // {
+        //     id: "username",
+        //     label: "Username",
+        //     icon: User,
+        //     placeholder: "Enter username",
+        // },
+        // {
+        //     id: "email",
+        //     label: "Email",
+        //     icon: Mail,
+        //     placeholder: "Enter email address",
+        // },
         {
             id: "phone",
             label: "Phone",

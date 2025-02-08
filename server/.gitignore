@@ -6,3 +6,4 @@
 .env
 to-do.txt
 backup.txt
+__pycache__
