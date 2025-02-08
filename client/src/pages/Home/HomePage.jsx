@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
-import {
-    BookOpen,
-    Target,
-    GraduationCap,
-    Plus,
-    Trash2,
-    ListTodo,
-} from "lucide-react";
+import { Target, Plus, Trash2, ListTodo, TrendingUp } from "lucide-react";
 import Header from "../../components/Headers/Header";
 import { useAuth } from "../../contexts/AuthContext";
 import AllCourses from "../Courses/AllCourses";
 import { Calendar } from "@/components/ui/calendar";
-
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, CartesianGrid } from "recharts";
 // + attendance tracker
 // add  a powerful notes section for better oraganising study materials
 
@@ -28,6 +34,28 @@ const HomeDashboard = () => {
     const [date, setDate] = useState(new Date());
     const [activeLink, setActiveLink] = useState("Home");
     const { user, token } = useAuth();
+
+    // Sample data for the videos watched graph
+    const videoData = [
+        { day: "Monday", lectures: 4, practice: 2 },
+        { day: "Tuesday", lectures: 3, practice: 3 },
+        { day: "Wednesday", lectures: 5, practice: 4 },
+        { day: "Thursday", lectures: 2, practice: 2 },
+        { day: "Friday", lectures: 6, practice: 3 },
+        { day: "Saturday", lectures: 1, practice: 1 },
+        { day: "Sunday", lectures: 3, practice: 2 },
+    ];
+
+    const chartConfig = {
+        lectures: {
+            label: "Lecture Videos",
+            color: "hsl(var(--chart-1))",
+        },
+        practice: {
+            label: "Practice Videos",
+            color: "hsl(var(--chart-2))",
+        },
+    };
 
     useEffect(() => {
         localStorage.setItem("studyGoals", JSON.stringify(goals));
@@ -57,6 +85,7 @@ const HomeDashboard = () => {
         return savedRemainders ? JSON.parse(savedRemainders) : [];
     });
     const [newRemainder, setNewRemainder] = useState("");
+
     useEffect(() => {
         localStorage.setItem("studyRemainders", JSON.stringify(remainders));
     }, [remainders]);
@@ -92,7 +121,7 @@ const HomeDashboard = () => {
     return (
         <div
             className={`min-h-screen font-[poppins] ${highContrast ? "invert" : "invert-0"}  transition-all duration-300
-                ${isDarkMode ? "bg-stone-900 text-white" : "bg-gray-50"}`}
+                ${isDarkMode ? "bg-black text-white" : "bg-gray-50 text-black"}`}
         >
             <Header
                 isDarkMode={isDarkMode}
@@ -102,14 +131,14 @@ const HomeDashboard = () => {
             />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
-                <section className="mb-12 transition-all duration-300">
+                <section className="mb-20 transition-all duration-300">
                     <h2
-                        className={`text-xl font-semibold mb-2 md:mb-6 ${isDarkMode ? "text-stone-200" : ""}`}
+                        className={`text-2xl font-semibold mb-2 md:mb-4 ${isDarkMode ? "text-stone-200" : ""}`}
                     >
                         Continue Learning
                     </h2>
                     <div
-                        className={`border rounded-xs ${isDarkMode ? "bg-stone-800 border-stone-700" : "bg-white border-gray-200"}`}
+                        className={`border rounded-lg ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}
                     >
                         <div className="flex items-start gap-6 p-6">
                             <div
@@ -164,17 +193,25 @@ const HomeDashboard = () => {
                 </section>
 
                 <section
-                    className="mb-12 flex flex-col-reverse md:flex-row items-start justify-center
+                    className="mb-4 flex flex-col-reverse md:flex-row items-start justify-center
                     gap-12 md:gap-4 transition-all duration-300"
                 >
-                    <div className="flex-1 size-full">
-                        <h2
-                            className={`text-xl font-semibold mb-2 md:mb-6 flex justify-start items-center gap-2 ${isDarkMode ? "text-stone-200" : ""}`}
+                    <Card
+                        className={`flex-1 size-full border-none ${isDarkMode ? "bg-[#111]" : "bg-white"} `}
+                    >
+                        <CardHeader
+                            className={`text-xl font-semibold ${isDarkMode ? "text-stone-200" : ""}`}
                         >
-                            <ListTodo className="size-6" /> Today&apos;s Goals
-                        </h2>
-                        <div
-                            className={`border rounded-xs p-2 md:p-6 ${isDarkMode ? "bg-stone-800 border-stone-700" : "bg-white border-gray-200"}`}
+                            <CardTitle className="flex justify-start items-center gap-2">
+                                <ListTodo className="size-6" /> Today&apos;s
+                                Goals
+                            </CardTitle>
+                            <CardDescription className="font-light">
+                                Set to-do tasks and complete timely
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent
+                            className={`px-2 md:px-6 pt-0 pb-2 md:pb-6`}
                         >
                             <form
                                 onSubmit={addGoal}
@@ -193,7 +230,7 @@ const HomeDashboard = () => {
                                 />
                                 <button
                                     type="submit"
-                                    className="p-2 bg-lime-500 text-white rounded-xs"
+                                    className="p-2 bg-lime-500 hover:bg-lime-700 text-white rounded-lg cursor-pointer"
                                 >
                                     <Plus size={20} />
                                 </button>
@@ -210,7 +247,7 @@ const HomeDashboard = () => {
                                             type="checkbox"
                                             checked={goal.done}
                                             onChange={() => toggleGoal(goal.id)}
-                                            className="h-5 w-5 rounded-xs border-gray-300 text-lime-500 focus:ring-lime-500"
+                                            className="h-5 w-5 rounded-lg border-gray-300 text-lime-500 focus:ring-lime-500"
                                         />
                                         <span
                                             className={`flex-1 ${
@@ -232,17 +269,24 @@ const HomeDashboard = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
 
-                    <div className="size-full md:w-[33%]">
-                        <h2
-                            className={`text-xl font-semibold mb-2 md:mb-6 flex justify-start items-center gap-2 ${isDarkMode ? "text-stone-200" : ""}`}
+                    <Card
+                        className={`size-full md:w-[33%] border-none ${isDarkMode ? "bg-[#111]" : "bg-white"}`}
+                    >
+                        <CardHeader
+                            className={`text-xl font-semibold ${isDarkMode ? "text-stone-200" : ""}`}
                         >
-                            <Target className="size-6" /> Remainders
-                        </h2>
-                        <div
-                            className={`border rounded-xs p-2 md:p-6 ${isDarkMode ? "bg-stone-800 border-stone-700" : "bg-white border-gray-200"}`}
+                            <CardTitle className="flex justify-start items-center gap-2">
+                                <Target className="size-6" /> Remainders
+                            </CardTitle>
+                            <CardDescription className="font-light">
+                                Important Remainders
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent
+                            className={`px-2 md:px-6 pt-0 pb-2 md:pb-6`}
                         >
                             <form
                                 onSubmit={addRemainder}
@@ -263,7 +307,7 @@ const HomeDashboard = () => {
                                 />
                                 <button
                                     type="submit"
-                                    className="p-2 bg-lime-500 text-white rounded-xs"
+                                    className="p-2 bg-lime-500 hover:bg-lime-700 text-white rounded-lg cursor-pointer"
                                 >
                                     <Plus size={20} />
                                 </button>
@@ -282,7 +326,7 @@ const HomeDashboard = () => {
                                             onChange={() =>
                                                 toggleRemainder(remainder.id)
                                             }
-                                            className="h-5 w-5 rounded-xs border-gray-300 text-lime-500 focus:ring-lime-500"
+                                            className="h-5 w-5 rounded-lg border-gray-300 text-lime-500 focus:ring-lime-500"
                                         />
                                         <span
                                             className={`flex-1 ${
@@ -306,25 +350,107 @@ const HomeDashboard = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
                 </section>
 
                 {/* calander: attandance tracker */}
-                {/* adjustable grid + daily analysis bar & calendar */}
-                {/* <section>
-                    <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        className="rounded-md border shadow"
-                    />
-                </section> */}
+                {/* adjustable grid of: daily videos watched graph & attendance calendar */}
+                {!!user && !!token && (
+                    <section className="w-full space-y-6 mb-20">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {/* Attendance Calendar Card */}
+                            <Card
+                                className={`border-none ${isDarkMode ? "bg-[#111]" : "bg-white"}`}
+                            >
+                                <CardHeader>
+                                    <CardTitle>Attendance Tracker</CardTitle>
+                                    <CardDescription className="font-light">
+                                        Track your daily attendance
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex items-center justify-center">
+                                    <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={setDate}
+                                        className="rounded-md border-none"
+                                        classNames={{
+                                            day_selected:
+                                                "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                                            day_today:
+                                                "bg-accent text-accent-foreground",
+                                        }}
+                                    />
+                                </CardContent>
+                                <CardFooter className="flex-col items-start gap-2 text-sm">
+                                    <div className="leading-none text-muted-foreground">
+                                        Click on a date to mark attendance
+                                    </div>
+                                </CardFooter>
+                            </Card>
+
+                            {/* Videos Watched Graph Card */}
+                            <Card
+                                className={`border-none ${isDarkMode ? "bg-[#111]" : "bg-white"}`}
+                            >
+                                <CardHeader>
+                                    <CardTitle>Lectures Watched</CardTitle>
+                                    <CardDescription className="font-light">
+                                        Weekly Progress
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <ChartContainer config={chartConfig}>
+                                        <BarChart data={videoData}>
+                                            <CartesianGrid vertical={false} />
+                                            <XAxis
+                                                dataKey="day"
+                                                tickLine={false}
+                                                tickMargin={10}
+                                                axisLine={false}
+                                                tickFormatter={(value) =>
+                                                    value.slice(0, 3)
+                                                }
+                                            />
+                                            <ChartTooltip
+                                                cursor={false}
+                                                content={
+                                                    <ChartTooltipContent indicator="dashed" />
+                                                }
+                                            />
+                                            <Bar
+                                                dataKey="lectures"
+                                                fill="var(--color-lectures)"
+                                                radius={4}
+                                            />
+                                            <Bar
+                                                dataKey="practice"
+                                                fill="var(--color-practice)"
+                                                radius={4}
+                                            />
+                                        </BarChart>
+                                    </ChartContainer>
+                                </CardContent>
+                                <CardFooter className="flex-col items-start gap-2 text-sm">
+                                    <div className="flex gap-2 font-medium leading-none">
+                                        Weekly progress up by 12%{" "}
+                                        <TrendingUp className="h-4 w-4" />
+                                    </div>
+                                    <div className="leading-none text-muted-foreground">
+                                        Showing lecture and practice videos
+                                        watched this week
+                                    </div>
+                                </CardFooter>
+                            </Card>
+                        </div>
+                    </section>
+                )}
 
                 {!!user && !!token && (
                     <section>
                         <h2
-                            className={`text-xl font-semibold mb-6 ${isDarkMode ? "text-stone-200" : ""}`}
+                            className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-stone-200" : ""}`}
                         >
                             All Courses
                         </h2>
@@ -342,7 +468,7 @@ const HomeDashboard = () => {
                 href="/add-course"
                 className={`fixed right-4 md:right-20 bottom-6 md:bottom-10 rounded-full flex items-center justify-center gap-2
                     box-content px-4 py-4 md:px-3 md:py-1 text-black text-sm md:text-lg
-                    ${isDarkMode ? "bg-lime-500 text-black" : "bg-lime-600 text-white"}`}
+                    ${isDarkMode ? "bg-lime-500 text-black" : "bg-lime-500 text-white"}`}
             >
                 <Plus className="size-5" />{" "}
                 <span className="hidden md:block">add new course</span>

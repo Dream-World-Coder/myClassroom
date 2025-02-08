@@ -31,7 +31,11 @@ const Header = ({
         // { name: "Practice", href: "/practice" },
         { name: "My Courses", href: "/courses" },
         { name: "Add Course", href: "/add-course" },
-        // { name: "Browse", href: "#" },
+        { name: "About", href: "/about" },
+        { name: "Contact", href: "/contact" },
+        // { name: "Browse Courses", href: "#" },
+
+        // keep them in last, logic applied that way
         { name: "Login", href: "/login" },
         { name: "Profile", href: "/profile" },
     ];

@@ -15,6 +15,8 @@ import RegisterPage from "./pages/Auth/Register";
 import AuthProvider from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoutes";
 
+import NotFound from "./components/NotFoundPage";
+
 export default function App() {
     // abcde1XY
     return (
@@ -61,6 +63,8 @@ export default function App() {
 
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
+
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </Router>
         </AuthProvider>

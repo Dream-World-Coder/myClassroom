@@ -90,7 +90,7 @@ export default function AllCourses({
         <div
             className={`min-h-screen transition-colors duration-300 font-sans ${
                 isDarkMode
-                    ? "bg-stone-900 text-stone-100"
+                    ? "bg-black text-stone-100"
                     : "bg-gray-50 text-gray-800"
             }`}
         >
@@ -113,10 +113,8 @@ export default function AllCourses({
                     {allCourses.map((course, index) => (
                         <Card
                             key={index}
-                            className={`overflow-hidden hover:shadow-lg transition-shadow ${
-                                isDarkMode
-                                    ? "bg-stone-800 border-stone-700"
-                                    : "bg-white border-gray-200"
+                            className={`overflow-hidden hover:shadow-lg transition-shadow border-none ${
+                                isDarkMode ? "bg-[#111]" : "bg-white"
                             }`}
                         >
                             <a href={`/courses/${index + 1}`}>
