@@ -2,9 +2,9 @@ import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import VideoPlayer from "./player";
-import { CourseInfo } from "./courseInfo";
-import { VideoList } from "./videoList";
+import VideoPlayer from "./components/player";
+import { CourseInfo } from "./components/courseInfo";
+import { VideoList } from "./components/videoList";
 
 const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
     const [selectedVideo, setSelectedVideo] = useState(null);
@@ -16,7 +16,6 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
                 {selectedVideo && (
                     <div className="w-full">
                         <div className="sticky top-0 z-10">
-                            {/* <VideoPlayer video={selectedVideo} /> */}
                             <VideoPlayer
                                 video={selectedVideo}
                                 selectedVideo={selectedVideo}
@@ -81,7 +80,6 @@ const CourseDetail = ({ isDarkMode, courseData, rounded = "rounded-lg" }) => {
                                 : "bg-white"
                         } ${rounded}`}
                     >
-                        {/* <VideoPlayer video={selectedVideo} /> */}
                         <VideoPlayer
                             video={selectedVideo}
                             selectedVideo={selectedVideo}

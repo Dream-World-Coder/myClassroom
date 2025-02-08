@@ -13,7 +13,7 @@ def create_app(configs_dictionary_key="dev"):
     app.config.from_object(configs_dictionary[configs_dictionary_key])
 
     mongo.init_app(app)
-    cors.init_app(app, origins=["http://localhost:5173"])
+    cors.init_app(app, origins=["http://localhost:5173"], resources={r"/api/*": {"origins": "*"}})
     jwt.init_app(app)
 
     from .routes import api_bp

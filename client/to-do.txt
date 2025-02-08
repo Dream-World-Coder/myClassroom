@@ -5,8 +5,10 @@ later add array of video urls also alongside playlisturl
 
 add video delete options on hover: Edit option -> click then apply this
 
-video quality increase & progress track
+video quality increase
 
 latest-video tracker:
 
-lecture NaN + watch - btn
+
+// unsolved task:
+add one more attribute to video -> create backup first

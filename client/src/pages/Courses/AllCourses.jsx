@@ -73,19 +73,6 @@ export default function AllCourses({
         getAllCourses();
     }, []);
 
-    if (loading)
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                Loading...
-            </div>
-        );
-    if (error)
-        return (
-            <div className="flex items-center justify-center min-h-screen text-red-500">
-                Error: {error}
-            </div>
-        );
-
     return (
         <div
             className={`min-h-screen transition-colors duration-300 font-sans ${
@@ -102,12 +89,27 @@ export default function AllCourses({
                     setActiveLink={setActiveLink}
                 />
             )}
-
             <div
                 className={`max-w-7xl mx-auto ${asComponent && "py-2 px-0"} ${!asComponent && "py-8 px-4"}`}
             >
                 {!asComponent && (
                     <h1 className="text-3xl font-bold mb-8">My Courses</h1>
+                )}
+                {loading && (
+                    <div className="flex items-center justify-center">
+                        Loading...
+                    </div>
+                )}
+                {error && (
+                    <div className="flex flex-col items-center justify-center text-red-500">
+                        Error: {error}
+                        <div className="text-green-500">
+                            First create one course here if not already:
+                            <a className="text-blue-500" href="/add-course">
+                                Create
+                            </a>
+                        </div>
+                    </div>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {allCourses.map((course, index) => (
@@ -192,7 +194,9 @@ export default function AllCourses({
 
                                     <div className="space-y-2">
                                         <Progress
-                                            value={parseInt(course.progress)}
+                                            value={parseInt(
+                                                course.progress.slice(0, -1),
+                                            )}
                                             className={`h-2 ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
                                         />
                                         <div className="flex justify-between text-sm">

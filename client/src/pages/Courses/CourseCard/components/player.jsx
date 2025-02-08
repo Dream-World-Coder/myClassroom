@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
-import { useAuth } from "../../../contexts/AuthContext";
-import { toast } from "react-hot-toast";
+import { useAuth } from "../../../../contexts/AuthContext";
+import WatchToggle from "./watchedSwitch";
 
 const VideoPlayer = ({ video, selectedVideo }) => {
     const videoRef = useRef(null);
@@ -43,7 +43,7 @@ const VideoPlayer = ({ video, selectedVideo }) => {
                 }
             } catch (err) {
                 console.error(err);
-                toast.error("Failed to load video");
+                // toast.error("Failed to load video");
             } finally {
                 apiCallInProgressRef.current = false;
                 setIsLoading(false);
@@ -64,7 +64,7 @@ const VideoPlayer = ({ video, selectedVideo }) => {
                 muted
                 className="w-full h-full"
                 onError={() => {
-                    toast.error("Error playing video");
+                    // toast.error("Error playing video");
                     streamUrlRef.current = null;
                 }}
             >
@@ -135,11 +135,12 @@ const VideoPlayer = ({ video, selectedVideo }) => {
                     <h2 className="text-lg md:text-xl font-semibold text-white mb-2">
                         {video.videoTitle}
                     </h2>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
                         <span>Lecture {selectedVideo?.index + 1}</span>
                         <span>•</span>
                         <span>{video.videoDuration}</span>
                     </div>
+                    <WatchToggle videoUrl={video.videoUrl} />
                 </div>
             </div>
         </div>

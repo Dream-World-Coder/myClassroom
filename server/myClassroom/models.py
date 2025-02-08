@@ -24,7 +24,7 @@ profile_images:list = [
 
 class User():
     def __init__(self, username, email, password, ipAddress, deviceInfo, _id=None, actualName=None, schoolName=None,
-                 address=None, currentClass=None, lastFiveLogin=None, courses=None, profileImg=None):
+                 address=None, currentClass=None, lastFiveLogin=None, courses=None, profileImg=None, continuingCourse=None):
         self.id = str(_id) if _id else None
         self.username = username
         self.email = email
@@ -38,6 +38,7 @@ class User():
         self.lastFiveLogin = lastFiveLogin if lastFiveLogin else []
         self.courses = courses if courses else []
         self.profileImg = profile_images[randint(0, len(course_thumbnails)-1)] if not profileImg else profileImg
+        self.continuingCourse = continuingCourse
 
     def save(self):
         """Save user to MongoDB"""
@@ -53,7 +54,8 @@ class User():
             "currentClass": self.currentClass,
             "lastFiveLogin": self.lastFiveLogin,
             "courses": self.courses,
-            "profileImg":self.profileImg
+            "profileImg":self.profileImg,
+            "continuingCourse":self.continuingCourse
         }
 
         if self.id:
@@ -70,6 +72,36 @@ class User():
             print(e)
             return None
 
+    def update_course_progress(self):
+        user_dictionary = mongo.db.users.find_one({'username': self.username})
+        courses = user_dictionary['courses']
+
+        try:
+            for (index, course) in enumerate(courses):
+                total_lectures = int(course['noOfLectures'])
+                watched_lectures = 0
+
+                for video in course['videos']:
+                    if video['watched'] is True:
+                        watched_lectures+=1
+
+                progress = int((watched_lectures / total_lectures) * 100)
+                print(f"\n{total_lectures=}\n{watched_lectures=}\n{progress=}")
+                mongo.db.users.update_one(
+                    {
+                        "username": self.username,
+                        f"courses.{index}": {"$exists": True}
+                    },
+                    {
+                        "$set": {f"courses.{index}.progress": f'{progress}%'}
+                    },
+                )
+            return True
+        except Exception:
+            print(Exception)
+            return False
+
+
     def get_course_data(self, course_id):
         course_id = int(course_id) - 1
         try:
@@ -83,6 +115,39 @@ class User():
         except Exception as e:
             print(e)
             return None
+
+    def find_video_by_url(self, video_url):
+        try:
+            pipeline = [
+                    {"$match": {"username": self.username}},
+                    {"$unwind": "$courses"},
+                    {"$unwind": "$courses.videos"},
+                    {"$match": {"courses.videos.videoUrl": video_url}},
+                    {"$project": {"_id": 0, "courses.videos": 1}},
+                ]
+            result =  list(mongo.db.users.aggregate(pipeline))
+            return result[0].get('courses').get('videos')
+
+        except Exception as e:
+            print(f"Error: {e}");
+            return None
+
+    def update_video(self, video_url, new_status):
+        try:
+            mongo.db.users.update_many(
+                {
+                    "username": self.username,
+                    "courses.videos.videoUrl": video_url
+                },
+                {
+                    "$set": {"courses.$[].videos.$[vid].watched": new_status}
+                },
+                array_filters=[{"vid.videoUrl": video_url}]
+            )
+            return True  # Success
+        except Exception as e:
+            print(f"Error updating video: {e}")
+            return False  # Failure
 
     @staticmethod
     def find_by_email(email):
@@ -104,9 +169,7 @@ class User():
         self.schoolName = schoolName
         self.address = address
         self.currentClass = currentClass
-        print("reached before save")
         self.save()
-        print("saved")
 
     def add_course(self, courseName, courseUrl, videos, courseOrganiser=None, courseDuration=None, course_materials=None):
         """Add a new course to the user"""

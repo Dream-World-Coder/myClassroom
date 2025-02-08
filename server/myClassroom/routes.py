@@ -1,16 +1,14 @@
-from flask import Blueprint, request, jsonify, stream_with_context, Response
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required, create_access_token
 from werkzeug.security import generate_password_hash
 from myClassroom import mongo
 from myClassroom.models import User
 from .utils import extract_playlist_videos
 import datetime
-import requests
 import yt_dlp
 import re
 
 
-# abcde1XY
 api_bp = Blueprint("api_bp", __name__)
 
 @api_bp.route('/')
@@ -21,11 +19,10 @@ def __route_home():
 # Authentication
 # -----------------
 def is_valid_password(password):
-    """Check password strength"""
     return re.match(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,16}$', password) is not None
 
 @api_bp.route("/register", methods=['POST'])
-def __route_register_user():
+def register_user():
     data = request.json or {}
 
     username = data.get("username")
@@ -62,7 +59,7 @@ def __route_register_user():
     # return jsonify({"message": "Registration successful", "user_id": new_user.id}), 201
 
 @api_bp.route("/login", methods=['POST'])
-def __route_login_user():
+def login_user():
     data = request.json or {}
     email = data.get("email")
     password = data.get("password")
@@ -87,15 +84,9 @@ def __route_login_user():
     return jsonify({"token":access_token}), 200
     # return jsonify({"message": "Login successful", "user_id": user.id}), 200
 
-@api_bp.route('/logout', methods=['POST'])
-@jwt_required()
-def __route_logout_user():
-    print("logout-----")
-    return jsonify({"message": "Logout successful"}), 200
-
 @api_bp.route('/u', methods=["GET"])
 @jwt_required()
-def __route_get_user_data():
+def get_user_data():
     current_user_email = get_jwt_identity()
     user = User.find_by_email(current_user_email)
 
@@ -112,11 +103,12 @@ def __route_get_user_data():
         "currentClass": user.currentClass,
         "lastFiveLogin": user.lastFiveLogin,
         "courses": user.courses,
+        "continuingCourse":user.continuingCourse or ''
     }), 200
 
 @api_bp.route('/u/update', methods=["POST"])
 @jwt_required()
-def __route_update_user_data():
+def update_user_data():
     current_user_email = get_jwt_identity()
     user = User.find_by_email(current_user_email)
 
@@ -140,12 +132,11 @@ def __route_update_user_data():
         return jsonify({'error': str(e)}), 500
 
 
-
 # Add / Update course
 # -----------------
 @api_bp.route("/extract-videos-and-save-in-db", methods=['POST'])
 @jwt_required()
-def __route_extract_videos_from_url():
+def extract_videos_from_url():
     current_user_email = get_jwt_identity()
     user = User.find_by_email(current_user_email)
     data = request.json or {}
@@ -185,6 +176,7 @@ def __route_extract_videos_from_url():
         print(f"\n\nError: {e}\n")
         return jsonify({"error": "Internal Server Error"}), 500
 
+
 # all courses
 # -----------------
 @api_bp.route("/courses", methods=['GET'])
@@ -211,15 +203,19 @@ def get_courses():
 # -----------------
 @api_bp.route("/courses/<course_id>", methods=['GET'])
 @jwt_required()
-def __send_course_data(course_id):
+def send_course_data(course_id):
     current_user_email = get_jwt_identity()
     user = User.find_by_email(current_user_email)
-    # course_id = request.args.get('courseId') or None
+
     if not course_id:
         return jsonify({"error":"could not get course id"}), 400
+
+    if not user:
+        return jsonify({"error": "User Not Found"}), 404
+
     try:
         if user:
-            # validate course_id
+            # validate course_id --> later
             courseData = user.get_course_data(course_id=course_id)
 
             if not courseData:
@@ -234,66 +230,85 @@ def __send_course_data(course_id):
         return jsonify({"error": "Internal Server Error"}), 500
 
 
-
-
+# get direct video url
+# ----------------
 @api_bp.route("/stream", methods=["POST"])
 @jwt_required()
-def stream_video():
+def get_stream_url():
+    print("\n\n\nI am called \n\n")
     current_user_email = get_jwt_identity()
     user = User.find_by_email(current_user_email)
     if not user:
-        return jsonify({"error": "User Not found"}), 404
+        return jsonify({"error": "User Not Found"}), 404
 
     data = request.json or {}
     video_url = data.get("videoUrl")
     if not video_url:
-        return jsonify({"error": "video url not found"}), 400
+        return jsonify({"error": "Video URL not found"}), 400
 
-    # Configure yt-dlp
+    # print(f"Streaming video from: {video_url}")
+
     ydl_opts = {
-        'format': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
-        'quiet': True,
+        "format": "best[ext=mp4]/best",
+        "quiet": False,
     }
-    print("----------")
 
-    try:
-        # Get video info and direct URL
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=False)
-            video_url = info['url']
-            content_type = info.get('ext', 'mp4')
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(video_url, download=False)
+        stream_url = info.get("url")
+        # print(f"Direct Video Stream URL: {stream_url}")
+        return jsonify({"streamUrl": stream_url})
 
-        # Function to stream video chunks
-        def generate():
-            headers = {}
-            if request.headers.get('Range'):
-                headers['Range'] = request.headers.get('Range')
+        if not stream_url:
+            print("No valid stream URL found!")
+            return jsonify({"error": "No valid video stream"}), 500
 
-            response = requests.get(video_url, headers=headers, stream=True)
 
-            if response.status_code == 206:
-                return Response(response.iter_content(chunk_size=8192),
-                              status=206,
-                              mimetype=f'video/{content_type}',
-                              headers={
-                                  'Accept-Ranges': 'bytes',
-                                  'Content-Range': response.headers.get('Content-Range'),
-                                  'Content-Length': response.headers.get('Content-Length'),
-                              })
 
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    yield chunk
+# video watched
+# ---------------------
+@api_bp.route("/video-watch-status", methods=['POST', 'GET'])
+@jwt_required()
+def set_video_state():
+    current_user_email = get_jwt_identity()
+    user = User.find_by_email(current_user_email)
 
-        return Response(
-            stream_with_context(generate()),
-            mimetype=f'video/{content_type}',
-            headers={'Accept-Ranges': 'bytes'}
-        )
+    if not user:
+        return jsonify({"error": "User Not Found"}), 404
 
-    except Exception as e:
-        print(f'error: {e}')
-        return jsonify({"error": str(e)}), 500
+    if request.method == "GET":
+        videoId = request.args.get('videoId')
+        if not videoId:
+            return jsonify({"error": "Missing videoUrl parameter"}), 400
+
+        video_url = f'https://www.youtube.com/watch?v={videoId}'
+        video = user.find_video_by_url(video_url)
+        if not video:
+            return jsonify({"error": "Video not found"}), 404
+
+        return jsonify({"watchStatus": str(video.get('watched', False))}), 200
+
+    if request.method == "POST":
+        data = request.json or {}
+        videoId = data.get('videoId')
+        new_status = data.get('newStatus')
+        # true = True js-python auto fixes it [python fixes automatically, js not]
+
+        if not videoId or new_status is None:
+            return jsonify({"error": "Missing videoUrl or newStatus in request"}), 400
+
+        video_url = f'https://www.youtube.com/watch?v={videoId}'
+        video = user.find_video_by_url(video_url)
+        if not video:
+            return jsonify({"error": "Video not found"}), 404
+
+        user.update_video(video_url, new_status) # update all video with same url, no matter the course
+
+        user.update_course_progress() # course progress
+        return jsonify({"message": "Watch status updated", "watchStatus": new_status}), 200
+
+    else:
+        return jsonify({'error': 'Method not allowed'}), 405
 
 
 

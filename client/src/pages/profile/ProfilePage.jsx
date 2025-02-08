@@ -375,7 +375,10 @@ const ProfilePage = () => {
                                             <Clock className="w-4 h-4" />
                                             Last login{" "}
                                             {formatDate(
-                                                profile.lastFiveLogin[4],
+                                                profile.lastFiveLogin[
+                                                    profile.lastFiveLogin
+                                                        .length - 1
+                                                ],
                                             )}
                                         </div>
                                     </div>
