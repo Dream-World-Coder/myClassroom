@@ -8,7 +8,7 @@ mongo = PyMongo()
 cors = CORS()
 jwt = JWTManager()
 
-def create_app(configs_dictionary_key="dev"):
+def create_app(configs_dictionary_key="prod"):
     app = Flask(__name__)
     app.config.from_object(configs_dictionary[configs_dictionary_key])
 
