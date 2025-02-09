@@ -21,6 +21,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Header from "../../components/Headers/Header";
 import LogoutButton from "./components";
+import toast from "react-hot-toast";
 
 const ProfilePage = () => {
     const [isDarkMode, setIsDarkMode] = useState(
@@ -55,6 +56,10 @@ const ProfilePage = () => {
     const handleSave = () => {
         setProfile(editedProfile);
         setIsEditing(false);
+        if (profile.actualName == null) {
+            toast.error("Some error occurred, Please Try again");
+            return;
+        }
         async function updateUserData() {
             try {
                 if (!token) {
@@ -86,8 +91,10 @@ const ProfilePage = () => {
                 }
                 const data = await response.json();
                 console.log(data.message);
+                toast.success(data.message);
             } catch (err) {
                 console.error("Error fetching course data:", err);
+                toast.error(err);
             }
         }
         updateUserData();

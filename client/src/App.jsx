@@ -5,6 +5,8 @@ import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import HomeDashboard from "./pages/Home/HomePage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import ContactPage from "./pages/Contact/Contact";
+import AboutPage from "./pages/About/About";
 
 import AddCoursePage from "./pages/Courses/AddCourse";
 import AllCourses from "./pages/Courses/AllCourses";
@@ -26,6 +28,8 @@ export default function App() {
                 <Routes>
                     <Route path="/lp" element={<LandingPage />} />
                     <Route path="/" element={<HomeDashboard />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
 
                     <Route
                         path="/profile"

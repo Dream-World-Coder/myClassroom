@@ -70,7 +70,7 @@ export default function WatchToggle({ videoUrl }) {
     };
 
     return (
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 text-white">
             <span>completed</span>
             <button
                 onClick={handleToggle}
@@ -82,7 +82,7 @@ export default function WatchToggle({ videoUrl }) {
                 {/* Round handle */}
                 <span
                     className={`absolute top-1 left-1 w-2 h-2 bg-white rounded-full transition-transform ${
-                        watched ? "translate-x-6" : "translate-x-0"
+                        watched ? "translate-x-4" : "translate-x-0"
                     }`}
                 />
             </button>

@@ -23,14 +23,14 @@ export default function NotFound() {
                 <Button
                     variant="outline"
                     onClick={() => window.history.back()}
-                    className="gap-2"
+                    className="gap-2 hover:cursor-pointer hover:bg-[#333] hover:text-white"
                 >
                     <ArrowLeft className="h-4 w-4" />
                     Go Back
                 </Button>
                 <Button
                     onClick={() => (window.location.href = "/")}
-                    className="gap-2"
+                    className="gap-2 hover:cursor-pointer hover:bg-[#333] hover:text-white"
                 >
                     <HomeIcon className="h-4 w-4" />
                     Return Home
