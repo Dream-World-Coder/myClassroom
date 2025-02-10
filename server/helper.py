@@ -1,47 +1,64 @@
 import yt_dlp
-import json
-from datetime import timedelta
+import time
 
-def extract_playlist_videos(playlist_url):
-    """
-    Extracts all videos from a YouTube playlist and returns details in JSON format.
-    """
-    ydl_opts = {'extract_flat': True}
-    video_data_list = []
-
-    def seconds_to_hms_alt(seconds):
-        return str(timedelta(seconds=seconds))
-
-    def extract_video_details(video_url):
-        """
-        Extracts information about a single video.
-        """
-        ydl_opts = {}
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=False) or {}
-            return {
-                "videoUrl": video_url,
-                "videoTitle": info.get('title', 'Title not available'),
-                "videoThumbnailUrl": info.get('thumbnail', 'Thumbnail not available'),
-                "videoDuration": seconds_to_hms_alt(float(info['duration'])) or 'Duration not available'
-            }
-
+def get_best_video_url(video_page_url):
     try:
+        ydl_opts = {
+            'quiet': True,
+            # Request only video-only streams in MP4 format.
+            'format': 'bestvideo[ext=mp4]',
+            'extract_flat': False
+        }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            playlist_info = ydl.extract_info(playlist_url, download=False) or {}
+            info = ydl.extract_info(video_page_url, download=False)
+            formats = info.get('formats', [])
+            # Filter for video-only formats (audio disabled)
+            video_formats = [
+                f for f in formats
+                if f.get('vcodec', 'none') != 'none' and f.get('acodec') == 'none'
+            ]
 
-            for entry in playlist_info.get('entries', []):
-                video_details = extract_video_details(entry['url'])
-                video_data_list.append(video_details)
+            if not video_formats:
+                raise Exception("No video-only formats found.")
 
-        return json.dumps({"playlistVideos": video_data_list}, indent=4)
+            # Sort by resolution (height) in descending order
+            video_formats.sort(key=lambda f: f.get('height', 0) or 0, reverse=True)
+            best_video = video_formats[0]
+            stream_url = best_video.get("url")
+            return stream_url
+            if not stream_url:
+                print("error, stream_url=None")
+                return None
 
     except Exception as e:
-        return json.dumps({"error": str(e)})
+        print(f"Error in get_best_video_url: {e}")
+        return None
+
+def get_audio_url(video_page_url):
+    ydl_opts = {
+        "format": "best[ext=mp4]/best",
+        "quiet": True,
+    }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(video_page_url, download=False)
+        stream_url = info.get("url")
+        return stream_url
+        if not stream_url:
+            print("error, stream_url=None")
+            return None
 
 
-if __name__ == "__main__":
-    playlist_url = "https://youtube.com/playlist?list=&si=KHYHjhn0D1a5iqvd"
-    playlist_json = extract_playlist_videos(playlist_url)
+def get_media_urls(video_page_url):
+    video_s_url = get_best_video_url(video_page_url)
+    video_s_url = 'get_best_video_url(video_page_url)'
+    # time.sleep(5)
+    audio_s_url = get_audio_url(video_page_url)
+    return (video_s_url, audio_s_url)
 
-    print(playlist_json)
+
+link="https://youtu.be/rjWqEI3HOD4?si=VS8ClnkfCPvze9Qu"
+
+l1, l2 = get_media_urls(link)
+
+print(f"\n{l1=}\n\n{l2=}\n\n")

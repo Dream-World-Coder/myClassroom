@@ -3,16 +3,18 @@ from flask_jwt_extended import get_jwt_identity, jwt_required, create_access_tok
 from werkzeug.security import generate_password_hash
 from myClassroom import mongo
 from myClassroom.models import User
-from .utils import extract_playlist_videos
+from .utils import extract_playlist_videos, get_media_urls_async
 import datetime
 import yt_dlp
 import re
 
+# Andrew NG
 
 api_bp = Blueprint("api_bp", __name__)
 
+
 @api_bp.route('/')
-def __route_home():
+def api_home():
     return "API Working", 200
 
 
@@ -232,36 +234,58 @@ def send_course_data(course_id):
 
 # get direct video url
 # ----------------
-@api_bp.route("/stream", methods=["POST"])
+@api_bp.route("/stream/low", methods=["POST"])
 @jwt_required()
-def get_stream_url():
+def get_stream_url_decent():
     print("\n\n\nI am called \n\n")
-    current_user_email = get_jwt_identity()
-    user = User.find_by_email(current_user_email)
-    if not user:
-        return jsonify({"error": "User Not Found"}), 404
+    # current_user_email = get_jwt_identity()
+    # user = User.find_by_email(current_user_email)
+    # if not user:
+    #     return jsonify({"error": "User Not Found"}), 404
 
     data = request.json or {}
     video_url = data.get("videoUrl")
     if not video_url:
         return jsonify({"error": "Video URL not found"}), 400
 
-    # print(f"Streaming video from: {video_url}")
-
     ydl_opts = {
         "format": "best[ext=mp4]/best",
-        "quiet": False,
+        "quiet": True,
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(video_url, download=False)
         stream_url = info.get("url")
-        # print(f"Direct Video Stream URL: {stream_url}")
         return jsonify({"streamUrl": stream_url})
 
         if not stream_url:
             print("No valid stream URL found!")
             return jsonify({"error": "No valid video stream"}), 500
+
+
+@api_bp.route("/stream/high", methods=["POST"])
+@jwt_required()
+async def get_stream_url_high():
+    data = request.json or {}
+    video_url = data.get("videoUrl")
+    if not video_url:
+        return jsonify({"error": "Video URL not found"}), 400
+
+    try:
+        direct_video_link, direct_audio_link = await get_media_urls_async(video_url)
+        if not direct_video_link or not direct_audio_link:
+            return jsonify({"error": "Failed to retrieve media URLs"}), 500
+
+        directLinks = {
+            "videoLink": direct_video_link,
+            "audioLink": direct_audio_link
+        }
+        return jsonify({"directLinks": directLinks}), 200
+    except Exception as e:
+        print(f"Error in get_stream_url_high: {e}")
+        return jsonify({"error": f"Error: {e}"}), 500
+
+
 
 
 

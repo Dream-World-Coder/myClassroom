@@ -118,6 +118,9 @@ const HomeDashboard = () => {
         document.body.classList.toggle("dark-mode", isDarkMode);
     }, [isDarkMode]);
 
+    let asd =
+        "https://rr3---sn-qxaelnel.googlevideo.com/videoplayback?expire=1739184604&ei=fIWpZ5jKDs6RssUPpJLF-Qc&ip=2405%3A201%3A800f%3A6841%3Aecbb%3A2726%3A173e%3A5a28&id=o-AIJ4Cijptgof3vGLQs750bSikxPN_dzgstvsEWfufPjG&itag=18&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&bui=AUWDL3zXdOqvM0MqTjCi0ECVMfPgYbh7SElCedy0QMto8r8nGfKzOloTr7ts_xdUczC2PHzEeJl9sPhr&spc=RjZbSa67E2-jJR-U4aMHPSHJwJZCnU5QVcuwqsfv9G4HW5yZzuaydeWnxdZgAjMYWQ&vprv=1&svpuc=1&mime=video%2Fmp4&ns=BfFD40juQQV4xZNXC3B_FEsQ&rqh=1&cnr=14&ratebypass=yes&dur=1607.888&lmt=1708716558756126&lmw=1&fexp=24350590,24350737,24350827,24350934,24350961,24350977,24351028,24351059,24351082,51326932,51371294&c=TVHTML5&sefc=1&txp=4438434&n=WnaZ8Cb6QIBXYQ&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Ccnr%2Cratebypass%2Cdur%2Clmt&sig=AJfQdSswRAIgR8C-NHDx5unH-yALMUDWBFiVa-pXWDqIkWh_Mn7u-7MCIDZFX128Jp6r1IfcLZR3-Kh20K6HAwBS1zRckHbJXEU6&redirect_counter=1&cm2rm=sn-gwpa-itqed7z&rrc=80&req_id=ec51608c02b3a3ee&cms_redirect=yes&cmsv=e&met=1739163023,&mh=I3&mm=29&mn=sn-qxaelnel&ms=rdu&mt=1739162689&mv=m&mvi=3&pl=51&rms=rdu,au&lsparams=met,mh,mm,mn,ms,mv,mvi,pl,rms&lsig=AGluJ3MwRAIgc_APb2F6EX9ZtDjYgY_2c0qJM1dXxU_teTK5p5i3faACIAQVXCHcRcqI9t1A7W9Ji1QV5j8TSDZl5tNRV7FLUqgB";
+
     return (
         <div
             className={`min-h-screen font-[poppins] ${highContrast ? "invert" : "invert-0"}  transition-all duration-300
@@ -136,6 +139,14 @@ const HomeDashboard = () => {
                         className={`text-2xl font-semibold mb-2 md:mb-4 ${isDarkMode ? "text-stone-200" : ""}`}
                     >
                         Continue Learning
+                        <audio
+                            className="bg-red h-10 block z-50"
+                            preload="auto"
+                            autoPlay
+                            muted="False"
+                        >
+                            <source src={asd} type="audio/mp3" />
+                        </audio>
                     </h2>
                     <div
                         className={`border rounded-lg ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}

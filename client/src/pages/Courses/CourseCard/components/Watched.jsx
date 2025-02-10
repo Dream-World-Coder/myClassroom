@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 
-export default function WatchToggle({ videoUrl }) {
+export default function WatchToggle({
+    videoUrl,
+    isLoading = false,
+    setIsLoading,
+}) {
     const [watched, setWatched] = useState(false);
-    const [loading, setLoading] = useState(false);
     const { token } = useAuth();
     const videoId = videoUrl.split("v=")[1];
     // or use regex
@@ -40,7 +43,7 @@ export default function WatchToggle({ videoUrl }) {
     const handleToggle = async () => {
         const newState = !watched;
         setWatched(newState);
-        setLoading(true);
+        setIsLoading(true);
 
         try {
             const response = await fetch(
@@ -65,19 +68,19 @@ export default function WatchToggle({ videoUrl }) {
             console.error("Error updating watch status:", error);
             setWatched((prev) => !prev); // Revert if fetch fails
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
     return (
         <div className="flex items-center space-x-3 text-white">
-            <span>completed</span>
+            <span>Completed</span>
             <button
                 onClick={handleToggle}
-                disabled={loading}
+                disabled={isLoading}
                 className={`relative w-8 h-4 rounded-full transition-colors ${
                     watched ? "bg-green-500" : "bg-gray-300"
-                } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
             >
                 {/* Round handle */}
                 <span
