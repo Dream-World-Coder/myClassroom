@@ -4,7 +4,7 @@
 
 #### webapp to create courses from youtube playlists. Design own courses, study without any ads or distractions. Track course progress, to-do, goals, study hours.
 
-> Currently its objective is not concurrency or performance, objective is to create an application for personal use.
+> Currently its objective is not concurrency or performance, focus is to create an application for personal use.
 
 **tech stack**
 
