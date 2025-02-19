@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { Target, Plus, Trash2, ListTodo, TrendingUp } from "lucide-react";
+import { Target, Plus, Trash2, ListTodo } from "lucide-react";
 import Header from "../../components/Headers/Header";
+import { Graph } from "./Graph";
 import { useAuth } from "../../contexts/AuthContext";
 import AllCourses from "../Courses/AllCourses";
 import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
 import {
     Card,
     CardContent,
@@ -12,12 +14,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import {
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-} from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, CartesianGrid } from "recharts";
 // + attendance tracker
 // add  a powerful notes section for better oraganising study materials
 
@@ -34,28 +30,6 @@ const HomeDashboard = () => {
     const [date, setDate] = useState(new Date());
     const [activeLink, setActiveLink] = useState("Home");
     const { user, token } = useAuth();
-
-    // Sample data for the videos watched graph
-    const videoData = [
-        { day: "Monday", lectures: 4, practice: 2 },
-        { day: "Tuesday", lectures: 3, practice: 3 },
-        { day: "Wednesday", lectures: 5, practice: 4 },
-        { day: "Thursday", lectures: 2, practice: 2 },
-        { day: "Friday", lectures: 6, practice: 3 },
-        { day: "Saturday", lectures: 1, practice: 1 },
-        { day: "Sunday", lectures: 3, practice: 2 },
-    ];
-
-    const chartConfig = {
-        lectures: {
-            label: "Lecture Videos",
-            color: "hsl(var(--chart-1))",
-        },
-        practice: {
-            label: "Practice Videos",
-            color: "hsl(var(--chart-2))",
-        },
-    };
 
     useEffect(() => {
         localStorage.setItem("studyGoals", JSON.stringify(goals));
@@ -118,9 +92,6 @@ const HomeDashboard = () => {
         document.body.classList.toggle("dark-mode", isDarkMode);
     }, [isDarkMode]);
 
-    let asd =
-        "https://rr3---sn-qxaelnel.googlevideo.com/videoplayback?expire=1739184604&ei=fIWpZ5jKDs6RssUPpJLF-Qc&ip=2405%3A201%3A800f%3A6841%3Aecbb%3A2726%3A173e%3A5a28&id=o-AIJ4Cijptgof3vGLQs750bSikxPN_dzgstvsEWfufPjG&itag=18&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&bui=AUWDL3zXdOqvM0MqTjCi0ECVMfPgYbh7SElCedy0QMto8r8nGfKzOloTr7ts_xdUczC2PHzEeJl9sPhr&spc=RjZbSa67E2-jJR-U4aMHPSHJwJZCnU5QVcuwqsfv9G4HW5yZzuaydeWnxdZgAjMYWQ&vprv=1&svpuc=1&mime=video%2Fmp4&ns=BfFD40juQQV4xZNXC3B_FEsQ&rqh=1&cnr=14&ratebypass=yes&dur=1607.888&lmt=1708716558756126&lmw=1&fexp=24350590,24350737,24350827,24350934,24350961,24350977,24351028,24351059,24351082,51326932,51371294&c=TVHTML5&sefc=1&txp=4438434&n=WnaZ8Cb6QIBXYQ&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Ccnr%2Cratebypass%2Cdur%2Clmt&sig=AJfQdSswRAIgR8C-NHDx5unH-yALMUDWBFiVa-pXWDqIkWh_Mn7u-7MCIDZFX128Jp6r1IfcLZR3-Kh20K6HAwBS1zRckHbJXEU6&redirect_counter=1&cm2rm=sn-gwpa-itqed7z&rrc=80&req_id=ec51608c02b3a3ee&cms_redirect=yes&cmsv=e&met=1739163023,&mh=I3&mm=29&mn=sn-qxaelnel&ms=rdu&mt=1739162689&mv=m&mvi=3&pl=51&rms=rdu,au&lsparams=met,mh,mm,mn,ms,mv,mvi,pl,rms&lsig=AGluJ3MwRAIgc_APb2F6EX9ZtDjYgY_2c0qJM1dXxU_teTK5p5i3faACIAQVXCHcRcqI9t1A7W9Ji1QV5j8TSDZl5tNRV7FLUqgB";
-
     return (
         <div
             className={`min-h-screen font-[poppins] ${highContrast ? "invert" : "invert-0"}  transition-all duration-300
@@ -134,19 +105,11 @@ const HomeDashboard = () => {
             />
 
             <main className="max-w-7xl mx-auto px-4 py-8">
-                <section className="mb-20 transition-all duration-300">
+                <section className="mb-20 transition-all duration-300 cursor-pointer">
                     <h2
                         className={`text-2xl font-semibold mb-2 md:mb-4 ${isDarkMode ? "text-stone-200" : ""}`}
                     >
                         Continue Learning
-                        <audio
-                            className="bg-red h-10 block z-50"
-                            preload="auto"
-                            autoPlay
-                            muted="False"
-                        >
-                            <source src={asd} type="audio/mp3" />
-                        </audio>
                     </h2>
                     <div
                         className={`border rounded-lg ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}
@@ -155,39 +118,26 @@ const HomeDashboard = () => {
                             <div
                                 className={`h-24 w-24 rounded-md overflow-hidden flex items-center justify-center ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
                             >
-                                <img src={"https://picsum.photos/200"} alt="" />
+                                <img
+                                    src="/images/courseThumbnails/2.jpg"
+                                    alt=""
+                                />
                             </div>
                             <div className="flex-1">
                                 <div
                                     className={`flex items-center gap-2 text-sm mb-1 ${isDarkMode ? "text-stone-400" : "text-gray-600"}`}
                                 >
-                                    <span>Course</span>
+                                    <span>Lecture {12}</span>
                                     <span>•</span>
-                                    <span>Princeton University</span>
+                                    <Badge>Prof Kamla krithivasan</Badge>
                                 </div>
                                 <h3
                                     className={`text-xl font-semibold mb-4 ${isDarkMode ? "text-stone-200" : ""}`}
                                 >
-                                    Algorithms, Part I
+                                    Automata Theory
+                                    {/* algorithms by prinstone */}
                                 </h3>
-                                <div
-                                    className={`h-1 w-full rounded-full overflow-hidden mb-2 ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
-                                >
-                                    <div
-                                        className="h-full bg-lime-500 rounded-full"
-                                        style={{ width: "65%" }}
-                                    />
-                                </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span
-                                        className={
-                                            isDarkMode
-                                                ? "text-stone-400"
-                                                : "text-gray-600"
-                                        }
-                                    >
-                                        65% Complete
-                                    </span>
                                     <button
                                         className={
                                             isDarkMode
@@ -195,7 +145,7 @@ const HomeDashboard = () => {
                                                 : "text-lime-600"
                                         }
                                     >
-                                        Continue Learning
+                                        Continue Lecture
                                     </button>
                                 </div>
                             </div>
@@ -402,58 +352,7 @@ const HomeDashboard = () => {
                             </Card>
 
                             {/* Videos Watched Graph Card */}
-                            <Card
-                                className={`border-none ${isDarkMode ? "bg-[#111]" : "bg-white"}`}
-                            >
-                                <CardHeader>
-                                    <CardTitle>Lectures Watched</CardTitle>
-                                    <CardDescription className="font-light">
-                                        Weekly Progress
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <ChartContainer config={chartConfig}>
-                                        <BarChart data={videoData}>
-                                            <CartesianGrid vertical={false} />
-                                            <XAxis
-                                                dataKey="day"
-                                                tickLine={false}
-                                                tickMargin={10}
-                                                axisLine={false}
-                                                tickFormatter={(value) =>
-                                                    value.slice(0, 3)
-                                                }
-                                            />
-                                            <ChartTooltip
-                                                cursor={false}
-                                                content={
-                                                    <ChartTooltipContent indicator="dashed" />
-                                                }
-                                            />
-                                            <Bar
-                                                dataKey="lectures"
-                                                fill="var(--color-lectures)"
-                                                radius={4}
-                                            />
-                                            <Bar
-                                                dataKey="practice"
-                                                fill="var(--color-practice)"
-                                                radius={4}
-                                            />
-                                        </BarChart>
-                                    </ChartContainer>
-                                </CardContent>
-                                <CardFooter className="flex-col items-start gap-2 text-sm">
-                                    <div className="flex gap-2 font-medium leading-none">
-                                        Weekly progress up by 12%{" "}
-                                        <TrendingUp className="h-4 w-4" />
-                                    </div>
-                                    <div className="leading-none text-muted-foreground">
-                                        Showing lecture and practice videos
-                                        watched this week
-                                    </div>
-                                </CardFooter>
-                            </Card>
+                            <Graph isDarkMode={isDarkMode} />
                         </div>
                     </section>
                 )}
