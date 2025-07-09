@@ -47,5 +47,5 @@ configs_dictionary = {
     "dev": DevelopmentConfig,
     "test": TestingConfig,
     "prod": ProductionConfig,
-    "default": DevelopmentConfig,
+    "_": DevelopmentConfig,
 }

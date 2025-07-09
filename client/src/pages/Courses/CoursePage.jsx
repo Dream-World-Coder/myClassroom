@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
+import { useParams } from "react-router-dom";
+
 import { useAuth } from "../../contexts/AuthContext";
 import Header from "../../components/Headers/Header";
 import CourseCard from "./CourseCard/Course";
-import { useParams } from "react-router-dom";
 
-const CoursePage = () => {
+const CoursePage = memo(function CoursePage() {
   const [isDarkMode, setIsDarkMode] = useState(
     () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
   );
@@ -77,6 +78,6 @@ const CoursePage = () => {
       <CourseCard isDarkMode={isDarkMode} courseData={courseData} rounded="" />
     </div>
   );
-};
+});
 
 export default CoursePage;

@@ -15,7 +15,7 @@ api_bp = Blueprint("api_bp", __name__)
 
 @api_bp.route('/')
 def api_home():
-    return "API Working", 200
+    return "myClassroom Api Working", 200
 
 
 # Authentication
@@ -118,7 +118,6 @@ def update_user_data():
         return jsonify({'error':'user not found'}), 404
 
     data = request.json or {}
-    print(data)
 
     try:
         actualName = data.get('actualName')
@@ -232,16 +231,12 @@ def send_course_data(course_id):
         return jsonify({"error": "Internal Server Error"}), 500
 
 
-# get direct video url
+# get direct video url, stream in low quality
 # ----------------
 @api_bp.route("/stream/low", methods=["POST"])
 @jwt_required()
 def get_stream_url_decent():
-    print("\n\n\nI am called \n\n")
-    # current_user_email = get_jwt_identity()
-    # user = User.find_by_email(current_user_email)
-    # if not user:
-    #     return jsonify({"error": "User Not Found"}), 404
+    # print("\n\n\nI am called: get_stream_url_decent() \n\n")
 
     data = request.json or {}
     video_url = data.get("videoUrl")
@@ -256,11 +251,12 @@ def get_stream_url_decent():
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(video_url, download=False)
         stream_url = info.get("url")
-        return jsonify({"streamUrl": stream_url})
 
         if not stream_url:
             print("No valid stream URL found!")
             return jsonify({"error": "No valid video stream"}), 500
+
+        return jsonify({"streamUrl": stream_url})
 
 
 @api_bp.route("/stream/high", methods=["POST"])

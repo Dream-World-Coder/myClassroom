@@ -1,14 +1,18 @@
+// Quality.jsx
+
 import toast from "react-hot-toast";
 import { useAuth } from "../../../../contexts/AuthContext";
+import PropTypes from "prop-types";
 
 export default function QualityToggle({
-  isLoading = False,
+  isLoading = false,
   setIsLoading,
-  bestQuality = False,
+  bestQuality = false,
   setQuality,
   video,
-  streamUrlRef,
-  audioStreamUrlRef,
+  videoRef,
+  setStreamUrl,
+  setAudioStreamUrl,
 }) {
   const { token } = useAuth();
 
@@ -32,26 +36,47 @@ export default function QualityToggle({
       );
 
       if (!response.ok) throw new Error("Request failed");
-      let data = response.json();
+      let data = await response.json();
       if (data.error) {
         console.error(data.error);
         toast.error(data.error);
       } else if (data.directLinks) {
-        streamUrlRef.current = data.directLinks.videoLink;
-        audioStreamUrlRef.current = data.directLinks.audioLink;
+        const currentTime = videoRef.current?.currentTime || 0;
+        const wasPlaying = videoRef.current && !videoRef.current.paused;
+
+        setStreamUrl(data.directLinks.videoLink);
+        setAudioStreamUrl(data.directLinks.audioLink);
+
+        if (videoRef.current) {
+          videoRef.current.src = data.directLinks.videoLink;
+          videoRef.current.load();
+
+          // Resume playback from the same time
+          videoRef.current.addEventListener(
+            "loadedmetadata",
+            () => {
+              videoRef.current.currentTime = currentTime;
+              if (wasPlaying) {
+                videoRef.current.play();
+              }
+            },
+            { once: true },
+          );
+        }
       } else {
         console.log(data);
       }
     } catch (error) {
       console.error("Error updating watch status:", error);
       setQuality((prev) => !prev); // Revert if fetch fails
+      toast.error("Failed to update video quality");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center space-x-3 text-white">
+    <div className="flex items-center space-x-3 text-sm">
       <span>Best Video Quality</span>
       <button
         onClick={handleToggle}
@@ -70,3 +95,13 @@ export default function QualityToggle({
     </div>
   );
 }
+QualityToggle.propTypes = {
+  isLoading: PropTypes.bool,
+  bestQuality: PropTypes.bool,
+  setIsLoading: PropTypes.func,
+  setQuality: PropTypes.func,
+  video: PropTypes.object,
+  videoRef: PropTypes.object,
+  setStreamUrl: PropTypes.func,
+  setAudioStreamUrl: PropTypes.func,
+};

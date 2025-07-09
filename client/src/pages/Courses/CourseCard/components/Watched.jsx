@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
+import PropTypes from "prop-types";
 
 export default function WatchToggle({
   videoUrl,
@@ -9,7 +10,6 @@ export default function WatchToggle({
   const [watched, setWatched] = useState(false);
   const { token } = useAuth();
   const videoId = videoUrl.split("v=")[1];
-  // or use regex
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -45,7 +45,7 @@ export default function WatchToggle({
 
     try {
       const response = await fetch(
-        "${import.meta.env.VITE_BACKEND_URL}/api/v1/video-watch-status",
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/video-watch-status`,
         {
           method: "POST",
           headers: {
@@ -71,7 +71,7 @@ export default function WatchToggle({
   };
 
   return (
-    <div className="flex items-center space-x-3 text-white">
+    <div className="flex items-center space-x-3 text-sm">
       <span>Completed</span>
       <button
         onClick={handleToggle}
@@ -90,3 +90,9 @@ export default function WatchToggle({
     </div>
   );
 }
+
+WatchToggle.propTypes = {
+  videoUrl: PropTypes.string,
+  isLoading: PropTypes.bool,
+  setIsLoading: PropTypes.func,
+};

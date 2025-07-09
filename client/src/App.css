@@ -2,13 +2,13 @@
 
 /* width */
 ::-webkit-scrollbar {
-    width: 5px;
+  width: 5px;
 }
 
 /* Track */
 
 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0);
+  background: rgba(0, 0, 0, 0);
 }
 
 /* Handle */
@@ -23,8 +23,9 @@
 }  */
 
 body {
-    background-color: white;
+  background-color: white;
 }
-body.dark-mode {
-    background-color: #222;
+html.dark,
+html.dark body {
+  background-color: #000;
 }

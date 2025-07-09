@@ -16,6 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, User } from "lucide-react";
 import Header from "../../components/Headers/Header";
+import { NavLink } from "react-router-dom";
 
 export default function AllCourses({
   asComponent = false,
@@ -73,7 +74,7 @@ export default function AllCourses({
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-300 font-sans ${
+      className={`min-h-screen pb-40 transition-colors duration-300 font-[poppins] ${
         isDarkMode ? "bg-black text-stone-100" : "bg-gray-50 text-gray-800"
       }`}
     >
@@ -109,11 +110,11 @@ export default function AllCourses({
           {allCourses.map((course, index) => (
             <Card
               key={index}
-              className={`overflow-hidden hover:shadow-lg transition-shadow border-none ${
-                isDarkMode ? "bg-[#111]" : "bg-white"
+              className={`border-none relative overflow-hidden hover:shadow-lg transition-shadow ${
+                isDarkMode ? "bg-neutral-800" : "bg-white"
               }`}
             >
-              <a href={`/courses/${index + 1}`}>
+              <NavLink to={`/courses/${index + 1}`} className="">
                 <div
                   className={`aspect-video w-full overflow-hidden ${
                     isDarkMode ? "bg-stone-700" : "bg-stone-100"
@@ -128,12 +129,7 @@ export default function AllCourses({
 
                 <CardHeader className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Badge
-                      variant="secondary"
-                      className={isDarkMode ? "bg-stone-700" : "bg-stone-100"}
-                    >
-                      Course
-                    </Badge>
+                    <Badge variant="secondary">Course</Badge>
                   </div>
                   <h3
                     className={`text-xl font-semibold line-clamp-2 ${
@@ -208,7 +204,7 @@ export default function AllCourses({
                     </Badge>
                   )}
                 </CardFooter>
-              </a>
+              </NavLink>
             </Card>
           ))}
         </div>

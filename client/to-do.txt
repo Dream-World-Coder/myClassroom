@@ -1,4 +1,5 @@
 So right now not every edit in course is getting saved in the database,
+
 only after a playlist-url change call to server is made
 
 later add array of video urls also alongside playlisturl
@@ -8,7 +9,14 @@ add video delete options on hover: Edit option -> click then apply this
 video quality increase
 
 latest-video tracker:
+add: user.lastPlayed
+
+edit courses
 
 
 // unsolved task:
 add one more attribute to video -> create backup first
+
+
+corse clr dm,
+audioStreamUrlRef auto play

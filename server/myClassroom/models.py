@@ -86,7 +86,7 @@ class User():
                         watched_lectures+=1
 
                 progress = int((watched_lectures / total_lectures) * 100)
-                print(f"\n{total_lectures=}\n{watched_lectures=}\n{progress=}")
+                # print(f"\n{total_lectures=}\n{watched_lectures=}\n{progress=}")
                 mongo.db.users.update_one(
                     {
                         "username": self.username,
@@ -105,7 +105,7 @@ class User():
     def get_course_data(self, course_id):
         course_id = int(course_id) - 1
         try:
-            # un comment if error needed for ui testingss
+            # uncomment if error needed for ui testings
             # if course_id not in range(0, len(mongo.db.users.find_one({'username': self.username}).courses)):
             user_dictionary = mongo.db.users.find_one({'username': self.username})
             if course_id not in range(0, len(user_dictionary['courses'])):
@@ -144,10 +144,10 @@ class User():
                 },
                 array_filters=[{"vid.videoUrl": video_url}]
             )
-            return True  # Success
+            return True  # success
         except Exception as e:
             print(f"Error updating video: {e}")
-            return False  # Failure
+            return False  # fail
 
     @staticmethod
     def find_by_email(email):
@@ -191,7 +191,7 @@ class User():
         """Update course if exists, else add a new one"""
         for course in self.courses:
             if course["courseUrl"] == courseUrl:
-                # Update existing course
+                # update existing course
                 course.update({
                     "courseName": courseName,
                     "videos": videos,
@@ -204,7 +204,7 @@ class User():
                 self.save()
                 return
 
-        # If course not found, add a new one
+        # if course not found, add a new one
         self.add_course(courseName, courseUrl, videos, courseOrganiser, courseDuration, courseMaterials)
 
     @staticmethod

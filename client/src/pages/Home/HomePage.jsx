@@ -92,7 +92,7 @@ const HomeDashboard = () => {
   };
 
   useEffect(() => {
-    document.body.classList.toggle("dark-mode", isDarkMode);
+    document.documentElement.classList.toggle("dark", isDarkMode);
   }, [isDarkMode]);
 
   return (

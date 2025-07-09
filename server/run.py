@@ -2,7 +2,7 @@ from myClassroom import create_app, mongo
 from myClassroom.models import User
 import os
 
-app = create_app()
+app = create_app(configs_dictionary_key="_")
 
 @app.shell_context_processor
 def make_shell_context():
@@ -13,5 +13,5 @@ def make_shell_context():
 
 
 if __name__ == "__main__":
-  port = int(os.environ.get("PORT", 5050))
-  app.run(host="0.0.0.0", port=port)
+  port = int(os.environ.get("PORT", 3000))
+  app.run(port=port)

@@ -1,19 +1,37 @@
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, memo } from "react";
+import { X } from "lucide-react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import WatchToggle from "./Watched";
 import QualityToggle from "./Quality";
+import PropTypes from "prop-types";
+// import toast from "react-hot-toast";
 
-const VideoPlayer = ({ video, selectedVideo }) => {
+const VideoPlayerNew = memo(function VideoPlayer({
+  video,
+  selectedVideo,
+  setSelectedVideo,
+  isDarkMode,
+}) {
   const videoRef = useRef(null);
+  const subVideoRef = useRef(null);
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [bestQuality, setQuality] = useState(false);
-  const streamUrlRef = useRef(null);
-  const audioStreamUrlRef = useRef(null);
+  const [streamUrl, setStreamUrl] = useState(null);
+  const [audioStreamUrl, setAudioStreamUrl] = useState(null);
+
   const apiCallInProgressRef = useRef(false);
   const currentVideoRef = useRef(null);
 
-  // Memoize the API call function to prevent recreating on every render
+  useEffect(() => {
+    // reset on mount
+    setQuality(false);
+    setStreamUrl(null);
+    setAudioStreamUrl(null);
+    subVideoRef.current = null;
+  }, []);
+
+  // memoize the api call function to prevent recreating on every render
   const fetchStreamUrl = useMemo(
     () => async (videoUrl) => {
       if (!token || apiCallInProgressRef.current) return;
@@ -37,7 +55,7 @@ const VideoPlayer = ({ video, selectedVideo }) => {
         const data = await response.json();
 
         if (data.streamUrl && currentVideoRef.current === videoUrl) {
-          streamUrlRef.current = data.streamUrl;
+          setStreamUrl(data.streamUrl);
           if (videoRef.current) {
             videoRef.current.src = data.streamUrl;
             videoRef.current.load();
@@ -53,11 +71,10 @@ const VideoPlayer = ({ video, selectedVideo }) => {
       }
     },
     [token],
-  ); // Only recreate if token changes
+  );
 
-  // Memoize video component to prevent unnecessary re-renders
   const VideoElement = useMemo(() => {
-    if (!streamUrlRef.current) return null;
+    if (!streamUrl) return null;
 
     return (
       <>
@@ -66,43 +83,46 @@ const VideoPlayer = ({ video, selectedVideo }) => {
           ref={videoRef}
           controls
           autoPlay
-          muted
-          className="w-full h-full"
+          // muted
+          className="size-full"
           onError={() => {
             // toast.error("Error playing video");
-            streamUrlRef.current = null;
+            setStreamUrl(null);
           }}
         >
-          <source src={streamUrlRef.current} type="video/mp4" />
+          <source src={streamUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         {/* The sub video is conditionally rendered. It remains hidden but can serve as an audio source */}
-        {audioStreamUrlRef.current && (
+        {audioStreamUrl && (
           <video
             id="subVideo"
-            ref={audioStreamUrlRef}
+            ref={subVideoRef}
             controls={false}
             autoPlay
-            muted
+            // muted
             className="size-0 opacity-0 pointer-events-none"
             onError={() => {
-              audioStreamUrlRef.current = null;
+              setAudioStreamUrl(null);
             }}
           >
-            <source src={audioStreamUrlRef.current} type="video/mp4" />
+            <source src={audioStreamUrl} type="video/mp4" />
           </video>
         )}
       </>
     );
-  }, [streamUrlRef.current, audioStreamUrlRef.current]);
+  }, [streamUrl, audioStreamUrl]);
 
   // Synchronize main video actions to the sub video
   useEffect(() => {
     const mainVideo = videoRef.current;
-    const subVideo = audioStreamUrlRef.current;
+    const subVideo = subVideoRef.current;
 
     // Only attach listeners if both video elements are available
     if (!mainVideo || !subVideo) return;
+
+    mainVideo.muted = false;
+    subVideo.muted = false;
 
     // When the main video plays, update the sub video and play it
     const handlePlay = () => {
@@ -149,7 +169,7 @@ const VideoPlayer = ({ video, selectedVideo }) => {
       mainVideo.removeEventListener("volumechange", handleVolumeChange);
       mainVideo.removeEventListener("timeupdate", handleTimeUpdate);
     };
-  }, []); // Run once on mount
+  }, [audioStreamUrl]);
 
   useEffect(() => {
     // Clean up previous video
@@ -157,7 +177,7 @@ const VideoPlayer = ({ video, selectedVideo }) => {
       videoRef.current.pause();
       videoRef.current.src = "";
       videoRef.current.load();
-      streamUrlRef.current = null;
+      setStreamUrl(null);
     }
 
     // Only fetch if it's a new video
@@ -166,7 +186,7 @@ const VideoPlayer = ({ video, selectedVideo }) => {
       fetchStreamUrl(video.videoUrl);
     }
 
-    // Cleanup function
+    // Cleanup
     return () => {
       if (videoRef.current) {
         videoRef.current.pause();
@@ -174,12 +194,11 @@ const VideoPlayer = ({ video, selectedVideo }) => {
         videoRef.current.load();
       }
       currentVideoRef.current = null;
-      streamUrlRef.current = null;
+      setStreamUrl(null);
       apiCallInProgressRef.current = false;
     };
   }, [video?.videoUrl, fetchStreamUrl]);
 
-  // Memoize the thumbnail display
   const ThumbnailDisplay = useMemo(() => {
     if (!video) return null;
 
@@ -197,237 +216,78 @@ const VideoPlayer = ({ video, selectedVideo }) => {
         )}
       </div>
     );
-  }, [video?.videoThumbnailUrl, isLoading]);
+  }, [video, isLoading]);
 
   if (!video) return null;
 
   return (
-    <div className="w-full h-full bg-stone-800 rounded-lg overflow-hidden">
-      <div className="relative">
-        <div className="aspect-video w-full bg-black relative">
-          {streamUrlRef.current ? VideoElement : ThumbnailDisplay}
-        </div>
+    <>
+      {/* placeholder */}
+      <div className="size-full opacity-0 relative"></div>
 
-        <div className="p-4">
-          <h2 className="text-lg md:text-xl font-semibold text-white mb-2">
-            {video.videoTitle}
-          </h2>
-          <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
-            <span>Lecture {selectedVideo?.index + 1}</span>
-            <span>•</span>
-            <span>{video.videoDuration}</span>
+      {/* fixed */}
+      <div
+        className={`z-50 w-full md:w-[50%] h-screen md:rounded-lg overflow-hidden p-1 md:p-1 fixed top-16 md:top-20 right-0 md:right-1
+        ${isDarkMode ? "bg-stone-800 text-stone-200" : "bg-gray-100 border border-gray-200 text-black"}`}
+      >
+        <div className="relative">
+          {/* close btn */}
+          <div
+            className={`w-full md:hidden ${isDarkMode ? "bg-stone-700" : "bg-stone-200"}
+              rounded-lg py-2 px-4 mb-2 flex items-center justify-end text-sm`}
+          >
+            <div
+              className={`flex items-center justify-center gap-1 rounded-lg px-2 py-1
+              ${isDarkMode ? "bg-stone-800" : "bg-gray-100"}`}
+              onClick={() => setSelectedVideo(null)}
+            >
+              <X size={18} /> Close
+            </div>
           </div>
-          <WatchToggle
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-            videoUrl={video.videoUrl}
-          />
-          <QualityToggle
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-            bestQuality={bestQuality}
-            setQuality={setQuality}
-            video={video}
-            streamUrlRef={streamUrlRef}
-            audioStreamUrlRef={audioStreamUrlRef}
-          />
+
+          <div className="aspect-video w-full bg-black relative rounded-lg overflow-hidden">
+            {streamUrl ? VideoElement : ThumbnailDisplay}
+          </div>
+
+          <div className="p-4">
+            <h2 className="text-lg md:text-xl font-semibold mb-2">
+              {video.videoTitle}
+            </h2>
+            <div
+              className={`flex items-center gap-2 text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
+              <span>Lecture {selectedVideo?.index + 1}</span>
+              <span>•</span>
+              <span>{video.videoDuration}</span>
+            </div>
+
+            <WatchToggle
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              videoUrl={video.videoUrl}
+            />
+            <QualityToggle
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              bestQuality={bestQuality}
+              setQuality={setQuality}
+              video={video}
+              videoRef={videoRef}
+              setStreamUrl={setStreamUrl}
+              setAudioStreamUrl={setAudioStreamUrl}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
-};
-
-// Wrap the entire component in memo to prevent unnecessary re-renders
-export default React.memo(VideoPlayer, (prevProps, nextProps) => {
-  return prevProps.video?.videoUrl === nextProps.video?.videoUrl;
 });
 
-// import React, { useRef, useEffect, useState, useMemo } from "react";
-// import { useAuth } from "../../../../contexts/AuthContext";
-// import WatchToggle from "./Watched";
-// import QualityToggle from "./Quality";
+VideoPlayerNew.propTypes = {
+  video: PropTypes.object,
+  selectedVideo: PropTypes.object,
+  setSelectedVideo: PropTypes.func,
+  isDarkMode: PropTypes.bool,
+};
 
-// const VideoPlayer = ({ video, selectedVideo }) => {
-//     const videoRef = useRef(null);
-//     const { token } = useAuth();
-//     const [isLoading, setIsLoading] = useState(false);
-//     const [bestQuality, setQuality] = useState(false);
-//     const streamUrlRef = useRef(null);
-//     const audioStreamUrlRef = useRef(null);
-//     const apiCallInProgressRef = useRef(false);
-//     const currentVideoRef = useRef(null);
-
-//     // Memoize the API call function to prevent recreating on every render
-//     const fetchStreamUrl = useMemo(
-//         () => async (videoUrl) => {
-//             if (!token || apiCallInProgressRef.current) return;
-
-//             apiCallInProgressRef.current = true;
-//             setIsLoading(true);
-
-//             const apiUrl = "${import.meta.env.VITE_BACKEND_URL}/api/v1/stream/low";
-
-//             const options = {
-//                 method: "POST",
-//                 headers: {
-//                     Authorization: `Bearer ${token}`,
-//                     "Content-Type": "application/json",
-//                 },
-//                 body: JSON.stringify({ videoUrl }),
-//             };
-
-//             try {
-//                 const response = await fetch(apiUrl, options);
-//                 const data = await response.json();
-
-//                 if (data.streamUrl && currentVideoRef.current === videoUrl) {
-//                     streamUrlRef.current = data.streamUrl;
-//                     if (videoRef.current) {
-//                         videoRef.current.src = data.streamUrl;
-//                         videoRef.current.load();
-//                         videoRef.current.play();
-//                     }
-//                 }
-//             } catch (err) {
-//                 console.error(err);
-//                 // toast.error("Failed to load video");
-//             } finally {
-//                 apiCallInProgressRef.current = false;
-//                 setIsLoading(false);
-//             }
-//         },
-//         [token],
-//     ); // Only recreate if token changes
-
-//     // Memoize video component to prevent unnecessary re-renders
-//     const VideoElement = useMemo(() => {
-//         if (!streamUrlRef.current) return null;
-
-//         return (
-//             <>
-//                 <video
-//                     id="mainVideo"
-//                     ref={videoRef}
-//                     controls
-//                     autoPlay
-//                     muted
-//                     className="w-full h-full"
-//                     onError={() => {
-//                         // toast.error("Error playing video");
-//                         streamUrlRef.current = null;
-//                     }}
-//                 >
-//                     <source src={streamUrlRef.current} type="video/mp4" />
-//                     Your browser does not support the video tag.
-//                 </video>
-//                 {/* i think from the next video onwards the ref will again be
-//                 null due to re-rendering if not then there will be problem */}
-//                 {audioStreamUrlRef.current && (
-//                     <video
-//                         id="subVideo"
-//                         ref={audioStreamUrlRef}
-//                         controls={false}
-//                         autoPlay
-//                         muted
-//                         className="size-0 opacity-0 pointer-events-none"
-//                         // invisible, cuz it will work as audio aource, but do not use `hidden`
-//                         onError={() => {
-//                             audioStreamUrlRef.current = null;
-//                         }}
-//                     >
-//                         <source
-//                             src={audioStreamUrlRef.current}
-//                             type="video/mp4"
-//                         />
-//                     </video>
-//                 )}
-//             </>
-//         );
-//     }, [streamUrlRef.current, audioStreamUrlRef.current]);
-
-//     useEffect(() => {
-//         // Clean up previous video
-//         if (videoRef.current) {
-//             videoRef.current.pause();
-//             videoRef.current.src = "";
-//             videoRef.current.load();
-//             streamUrlRef.current = null;
-//         }
-
-//         // Only fetch if it's a new video
-//         if (video?.videoUrl && video.videoUrl !== currentVideoRef.current) {
-//             currentVideoRef.current = video.videoUrl;
-//             fetchStreamUrl(video.videoUrl);
-//         }
-
-//         // Cleanup function
-//         return () => {
-//             if (videoRef.current) {
-//                 videoRef.current.pause();
-//                 videoRef.current.src = "";
-//                 videoRef.current.load();
-//             }
-//             currentVideoRef.current = null;
-//             streamUrlRef.current = null;
-//             apiCallInProgressRef.current = false;
-//         };
-//     }, [video?.videoUrl, fetchStreamUrl]); // Only depend on video URL and memoized fetch function
-
-//     // Memoize the thumbnail display
-//     const ThumbnailDisplay = useMemo(() => {
-//         if (!video) return null;
-
-//         return (
-//             <div className="relative w-full h-full">
-//                 <img
-//                     src={video.videoThumbnailUrl}
-//                     alt={video.videoTitle}
-//                     className="w-full h-full object-cover opacity-60"
-//                 />
-//                 {isLoading && (
-//                     <div className="absolute inset-0 flex items-center justify-center">
-//                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-//                     </div>
-//                 )}
-//             </div>
-//         );
-//     }, [video?.videoThumbnailUrl, isLoading]);
-
-//     if (!video) return null;
-
-//     return (
-//         <div className="w-full h-full bg-stone-800 rounded-lg overflow-hidden">
-//             <div className="relative">
-//                 <div className="aspect-video w-full bg-black relative">
-//                     {streamUrlRef.current ? VideoElement : ThumbnailDisplay}
-//                 </div>
-
-//                 <div className="p-4">
-//                     <h2 className="text-lg md:text-xl font-semibold text-white mb-2">
-//                         {video.videoTitle}
-//                     </h2>
-//                     <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
-//                         <span>Lecture {selectedVideo?.index + 1}</span>
-//                         <span>•</span>
-//                         <span>{video.videoDuration}</span>
-//                     </div>
-//                     <WatchToggle videoUrl={video.videoUrl} />
-//                     <QualityToggle
-//                         isLoading={isLoading}
-//                         setIsLoading={setIsLoading}
-//                         bestQuality={bestQuality}
-//                         setQuality={setQuality}
-//                         video={video}
-//                         streamUrlRef={streamUrlRef}
-//                         audioStreamUrlRef={audioStreamUrlRef}
-//                     />
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
-// // Wrap the entire component in memo to prevent unnecessary re-renders
-// export default React.memo(VideoPlayer, (prevProps, nextProps) => {
-//     return prevProps.video?.videoUrl === nextProps.video?.videoUrl;
-// });
+export default VideoPlayerNew;
