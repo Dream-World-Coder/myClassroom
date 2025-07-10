@@ -1,38 +1,41 @@
 import { useState, useEffect } from "react";
 import { Target, Plus, Trash2, ListTodo, ChevronRight } from "lucide-react";
 import Header from "../../components/Headers/Header";
-import { Graph } from "./Graph";
 import { useAuth } from "../../contexts/AuthContext";
 import AllCourses from "../Courses/AllCourses";
-import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { NavLink } from "react-router-dom";
 import note from "./note.svg";
+import CalendarHeatmap from "react-calendar-heatmap";
+import "react-calendar-heatmap/dist/styles.css";
+import { subMonths, endOfToday } from "date-fns";
+// import { StreakHeatmap } from "./components";
 
-// + attendance tracker
-// add  a powerful notes section for better oraganising study materials
+// add a powerful notes section for better oraganising study materials
 
 const HomeDashboard = () => {
   const [isDarkMode, setIsDarkMode] = useState(
     () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
   );
-  const [highContrast, setHighContrast] = useState(null);
   const [goals, setGoals] = useState(() => {
     const savedGoals = localStorage.getItem("studyGoals");
     return savedGoals ? JSON.parse(savedGoals) : [];
   });
   const [newGoal, setNewGoal] = useState("");
-  const [date, setDate] = useState(new Date());
   const [activeLink, setActiveLink] = useState("Home");
   const { user, token } = useAuth();
+
+  const today = endOfToday();
+  const startDate = subMonths(today, 13);
+
+  const sampleData = [{ date: "2025-06-01", count: 10 }];
 
   useEffect(() => {
     localStorage.setItem("studyGoals", JSON.stringify(goals));
@@ -97,8 +100,8 @@ const HomeDashboard = () => {
 
   return (
     <div
-      className={`min-h-screen font-[poppins] ${highContrast ? "invert" : "invert-0"}  transition-all duration-300
-                ${isDarkMode ? "bg-black text-white" : "bg-gray-50 text-black"}`}
+      className={`min-h-screen font-[poppins] transition-all duration-300
+                ${isDarkMode ? "bg-[#111] text-white" : "bg-gray-50 text-black"}`}
     >
       <Header
         isDarkMode={isDarkMode}
@@ -116,20 +119,20 @@ const HomeDashboard = () => {
               Continue Learning
             </h2>
             <div
-              className={`border rounded-lg ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}
+              className={`border rounded-lg ${isDarkMode ? "bg-[#171717] border-[#222]" : "bg-white border-gray-200"}`}
             >
               <div className="flex items-start gap-6 p-6">
                 <div
                   className={`h-24 w-24 rounded-md overflow-hidden flex items-center justify-center ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
                 >
-                  <img src="/images/courseThumbnails/2.jpg" alt="" />
+                  <img src="/images/courseThumbnails/2.png" alt="" />
                 </div>
                 <div className="flex-1">
                   <div
-                    className={`flex items-center gap-2 text-sm mb-1 ${isDarkMode ? "text-stone-400" : "text-gray-600"}`}
+                    className={`flex flex-col md:flex-row items-start md:items-center gap-2 text-sm mb-1 ${isDarkMode ? "text-stone-400" : "text-gray-600"}`}
                   >
                     <span>Lecture {12}</span>
-                    <span>•</span>
+                    <span className="hidden md:block">•</span>
                     <Badge>Prof Kamla krithivasan</Badge>
                   </div>
                   <h3
@@ -177,7 +180,7 @@ const HomeDashboard = () => {
                     gap-12 md:gap-4 transition-all duration-300"
           >
             <Card
-              className={`flex-1 size-full border-none ${isDarkMode ? "bg-[#111]" : "bg-white"} `}
+              className={`flex-1 size-full border-none ${isDarkMode ? "bg-[#171717]" : "bg-white"} `}
             >
               <CardHeader
                 className={`text-xl font-semibold ${isDarkMode ? "text-stone-200" : ""}`}
@@ -201,7 +204,7 @@ const HomeDashboard = () => {
                     placeholder="Add a new goal..."
                     className={`flex-1 max-w-[80%] px-4 py-2 text-sm md:text-base border rounded-sm focus:outline-hidden focus:ring-1 focus:ring-lime-500 ${
                       isDarkMode
-                        ? "border-stone-800 bg-[#111]"
+                        ? "border-neutral-800 bg-[#111]"
                         : "border-gray-200"
                     }`}
                   />
@@ -247,7 +250,7 @@ const HomeDashboard = () => {
             </Card>
 
             <Card
-              className={`size-full md:w-[33%] border-none ${isDarkMode ? "bg-[#111]" : "bg-white"}`}
+              className={`size-full md:w-[33%] border-none ${isDarkMode ? "bg-[#171717]" : "bg-white"}`}
             >
               <CardHeader
                 className={`text-xl font-semibold ${isDarkMode ? "text-stone-200" : ""}`}
@@ -271,7 +274,7 @@ const HomeDashboard = () => {
                     placeholder="Add remainder eg. next exam date."
                     className={`flex-1 max-w-[80%] px-4 py-2 text-sm md:text-base border rounded-sm focus:outline-hidden focus:ring-1 focus:ring-lime-500 ${
                       isDarkMode
-                        ? "border-stone-800 bg-[#111]"
+                        ? "border-neutral-800 bg-[#111]"
                         : "border-gray-200"
                     }`}
                   />
@@ -319,43 +322,42 @@ const HomeDashboard = () => {
         )}
 
         {/* calander: attandance tracker */}
-        {/* adjustable grid of: daily videos watched graph & attendance calendar */}
         {!!user && !!token && (
           <section className="w-full space-y-6 mb-20">
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Attendance Calendar Card */}
-              <Card
-                className={`border-none ${isDarkMode ? "bg-[#111]" : "bg-white"}`}
-              >
-                <CardHeader>
-                  <CardTitle>Attendance Tracker</CardTitle>
-                  <CardDescription className="font-light">
-                    Track your daily attendance
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex items-center justify-center">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className="rounded-md border-none"
-                    classNames={{
-                      day_selected:
-                        "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                      day_today: "bg-accent text-accent-foreground",
-                    }}
-                  />
-                </CardContent>
-                <CardFooter className="flex-col items-start gap-2 text-sm">
-                  <div className="leading-none text-muted-foreground">
-                    Click on a date to mark attendance
-                  </div>
-                </CardFooter>
-              </Card>
+            {/* <div className="grid gap-4 md:grid-cols-2"> */}
+            <Card
+              className={`border-none ${isDarkMode ? "bg-[#171717]" : "bg-white"}`}
+            >
+              <CardHeader>
+                <CardTitle>Attendance</CardTitle>
+                <CardDescription className="font-light">
+                  Track your daily attendance
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center">
+                <CalendarHeatmap
+                  startDate={startDate}
+                  endDate={today}
+                  values={sampleData}
+                  classForValue={(value) => {
+                    if (!value || value.count === 0) return "color-empty";
+                    if (value.count < 3) return "color-scale-1";
+                    if (value.count < 5) return "color-scale-2";
+                    return "color-scale-3";
+                  }}
+                  tooltipDataAttrs={(value) => {
+                    if (!value || !value.date) return null;
+                    return {
+                      "data-tooltip": `${value.date} – ${value.count} contributions`,
+                    };
+                  }}
+                  showWeekdayLabels
+                />
+              </CardContent>
+            </Card>
 
-              {/* Videos Watched Graph Card */}
-              <Graph isDarkMode={isDarkMode} />
-            </div>
+            {/* Graph */}
+            {/* </div> */}
           </section>
         )}
 
@@ -373,15 +375,12 @@ const HomeDashboard = () => {
         )}
       </main>
 
-      <a
-        href="/add-course"
-        className={`fixed right-4 md:right-20 bottom-6 md:bottom-10 rounded-full flex items-center justify-center gap-2
-                    box-content px-4 py-4 md:px-3 md:py-1 text-black text-sm md:text-lg
-                    ${isDarkMode ? "bg-lime-500 text-black" : "bg-lime-500 text-white"}`}
+      <NavLink
+        to="/add-course"
+        className={`fixed right-4 md:right-20 bottom-10 rounded-full box-content p-3  bg-lime-500 text-black shadow-xl`}
       >
-        <Plus className="size-5" />{" "}
-        <span className="hidden md:block">add new course</span>
-      </a>
+        <Plus size={24} strokeWidth={3} />
+      </NavLink>
     </div>
   );
 };

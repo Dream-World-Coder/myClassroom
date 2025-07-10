@@ -20,3 +20,9 @@ add one more attribute to video -> create backup first
 
 corse clr dm,
 audioStreamUrlRef auto play
+
+migrate to Ts
+users - collections table instead only users. check url & match.
+Darkmode context
+
+SWITCH TO PROD

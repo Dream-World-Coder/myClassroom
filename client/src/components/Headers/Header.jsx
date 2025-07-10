@@ -13,7 +13,6 @@ const Header = ({
   setActiveLink,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // const [activeLink, setActiveLink] = useState("Home");
   const { user, token } = useAuth();
   const isAuthenticated = !!(user && token);
 
@@ -31,8 +30,7 @@ const Header = ({
     // { name: "Practice", href: "/practice" },
     { name: "My Courses", href: "/courses" },
     { name: "Add Course", href: "/add-course" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: "About & Contact", href: "/about" },
     // { name: "Browse Courses", href: "#" },
 
     // keep them in last, logic applied that way
@@ -42,7 +40,7 @@ const Header = ({
 
   return (
     <header
-      className={`sticky top-0 z-50 border-b ${isDarkMode ? "bg-[#111] border-[#222] text-white" : "bg-white border-gray-200"}`}
+      className={`sticky font-[poppins] top-0 z-50 border-b ${isDarkMode ? "bg-[#111] border-[#222] text-white" : "bg-white border-gray-200"}`}
     >
       <div className="max-w-7xl mx-auto">
         <div className="relative px-4 flex items-center justify-between h-16">

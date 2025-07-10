@@ -5,8 +5,7 @@ import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import HomeDashboard from "./pages/Home/HomePage";
 import ProfilePage from "./pages/profile/ProfilePage";
-import ContactPage from "./pages/Contact/Contact";
-import AboutPage from "./pages/About/About";
+import AboutNContactPage from "./pages/AboutNContact/AnC";
 
 import AddCoursePage from "./pages/Courses/AddCourse";
 import AllCourses from "./pages/Courses/AllCourses";
@@ -20,57 +19,56 @@ import { ProtectedRoute } from "./components/ProtectedRoutes";
 import NotFound from "./components/NotFoundPage";
 
 export default function App() {
-    // abcde1XY
-    return (
-        <AuthProvider>
-            <Toaster position="top-center" />
-            <Router>
-                <Routes>
-                    <Route path="/lp" element={<LandingPage />} />
-                    <Route path="/" element={<HomeDashboard />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/contact" element={<ContactPage />} />
+  // abcde1XY
+  return (
+    <AuthProvider>
+      <Toaster position="top-center" />
+      <Router>
+        <Routes>
+          <Route path="/lp" element={<LandingPage />} />
+          <Route path="/" element={<HomeDashboard />} />
+          <Route path="/about" element={<AboutNContactPage />} />
 
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProtectedRoute>
-                                <ProfilePage />
-                            </ProtectedRoute>
-                        }
-                    />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
 
-                    <Route
-                        path="/add-course"
-                        element={
-                            <ProtectedRoute>
-                                <AddCoursePage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/courses"
-                        element={
-                            <ProtectedRoute>
-                                <AllCourses />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/courses/:courseId"
-                        element={
-                            <ProtectedRoute>
-                                <CoursePage />
-                            </ProtectedRoute>
-                        }
-                    />
+          <Route
+            path="/add-course"
+            element={
+              <ProtectedRoute>
+                <AddCoursePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/courses"
+            element={
+              <ProtectedRoute>
+                <AllCourses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/courses/:courseId"
+            element={
+              <ProtectedRoute>
+                <CoursePage />
+              </ProtectedRoute>
+            }
+          />
 
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-            </Router>
-        </AuthProvider>
-    );
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
 }

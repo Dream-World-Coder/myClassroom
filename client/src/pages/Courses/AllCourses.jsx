@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, User } from "lucide-react";
 import Header from "../../components/Headers/Header";
 import { NavLink } from "react-router-dom";
+import PropTypes from "prop-types";
 
 export default function AllCourses({
   asComponent = false,
@@ -75,7 +76,7 @@ export default function AllCourses({
   return (
     <div
       className={`min-h-screen pb-40 transition-colors duration-300 font-[poppins] ${
-        isDarkMode ? "bg-black text-stone-100" : "bg-gray-50 text-gray-800"
+        isDarkMode ? "bg-[#111] text-stone-100" : "bg-gray-50 text-gray-800"
       }`}
     >
       {!asComponent && (
@@ -110,27 +111,24 @@ export default function AllCourses({
           {allCourses.map((course, index) => (
             <Card
               key={index}
-              className={`border-none relative overflow-hidden hover:shadow-lg transition-shadow ${
-                isDarkMode ? "bg-neutral-800" : "bg-white"
+              className={`border border-transparent relative overflow-hidden hover:shadow-lg transition-shadow ${
+                isDarkMode ? "bg-[#171717] border-[#222]" : "bg-white"
               }`}
             >
               <NavLink to={`/courses/${index + 1}`} className="">
-                <div
-                  className={`aspect-video w-full overflow-hidden ${
-                    isDarkMode ? "bg-stone-700" : "bg-stone-100"
-                  }`}
-                >
-                  <img
-                    src={course.courseThumbnail}
-                    alt={course.courseName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {course.courseThumbnail && (
+                  <div
+                    className={`aspect-video w-full overflow-hidden border-b ${isDarkMode ? "border-[#222]" : "border-gray-50"}`}
+                  >
+                    <img
+                      src={course.courseThumbnail}
+                      alt={course.courseName}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
 
                 <CardHeader className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">Course</Badge>
-                  </div>
                   <h3
                     className={`text-xl font-semibold line-clamp-2 ${
                       isDarkMode ? "text-stone-200" : "text-stone-900"
@@ -167,12 +165,13 @@ export default function AllCourses({
                   <div className="space-y-2">
                     <Progress
                       value={parseInt(course.progress.slice(0, -1))}
-                      className={`h-2 ${isDarkMode ? "bg-stone-700" : "bg-stone-100"}`}
+                      className={`h-2 ${isDarkMode ? "bg-neutral-800" : "bg-gray-100"}`}
                     />
+
                     <div className="flex justify-between text-sm">
                       <span
                         className={
-                          isDarkMode ? "text-stone-400" : "text-stone-600"
+                          isDarkMode ? "text-neutral-400" : "text-neutral-600"
                         }
                       >
                         {course.progress} Complete
@@ -212,3 +211,7 @@ export default function AllCourses({
     </div>
   );
 }
+AllCourses.propTypes = {
+  asComponent: PropTypes.bool,
+  parentDarkMode: PropTypes.bool,
+};

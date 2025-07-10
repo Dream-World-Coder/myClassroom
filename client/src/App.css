@@ -29,3 +29,70 @@ html.dark,
 html.dark body {
   background-color: #000;
 }
+
+.react-calendar-heatmap .react-calendar-heatmap-week > rect {
+  width: 8px;
+  height: 8px;
+  rx: 2px;
+}
+/* Default (light mode) cell colors */
+.color-empty {
+  fill: #ebedf0;
+}
+.color-scale-1 {
+  fill: #9be9a8;
+}
+.color-scale-2 {
+  fill: #40c463;
+}
+.color-scale-3 {
+  fill: #30a14e;
+}
+
+/* Dark mode overrides */
+html.dark .color-empty {
+  fill: #2d333b;
+}
+html.dark .color-scale-1 {
+  fill: #003820;
+}
+html.dark .color-scale-2 {
+  fill: #006f3c;
+}
+html.dark .color-scale-3 {
+  fill: #00c46b;
+}
+
+.react-calendar-heatmap rect[data-tooltip] {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Tooltip styling */
+.react-calendar-heatmap rect[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  background-color: #333;
+  color: white;
+  font-size: 0.75rem;
+  padding: 4px 6px;
+  border-radius: 4px;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Optional: Arrow */
+.react-calendar-heatmap rect[data-tooltip]:hover::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 4px;
+  border-style: solid;
+  border-color: transparent transparent #333 transparent;
+}
