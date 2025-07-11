@@ -83,8 +83,7 @@ const AddCoursePage = () => {
   };
 
   function fetchPlayListUrl(courseData) {
-    const apiUrl =
-      "${import.meta.env.VITE_BACKEND_URL}/api/v1/extract-videos-and-save-in-db";
+    const apiUrl = `${import.meta.env.VITE_BACKEND_URL}/api/v1/extract-videos-and-save-in-db`;
     const token = localStorage.getItem("token") || null;
     if (!token) {
       toast.error("Authorisation token is NULL.");
