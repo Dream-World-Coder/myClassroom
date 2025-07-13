@@ -127,7 +127,7 @@ const AddCoursePage = () => {
           courseDuration,
           courseUrl,
           courseMaterials: studyMaterials,
-          videos: data.playListData, // else need a re-render to see changes, but why
+          videos: data.playListData,
         };
         setPreviewCourse(courseData);
       })
@@ -328,7 +328,7 @@ const AddCoursePage = () => {
           </h2>
 
           <div
-            className={`rounded-lg border ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}
+            className={`Xrounded-lg border ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}
           >
             {previewCourse ? (
               <CourseCard isDarkMode={isDarkMode} courseData={previewCourse} />

@@ -6,6 +6,13 @@ import QualityToggle from "./Quality";
 import PropTypes from "prop-types";
 // import toast from "react-hot-toast";
 
+/**
+ * issues:
+ *
+ * low stream:
+ * a bg one running, needs to stop that
+ */
+
 const VideoPlayerNew = memo(function VideoPlayer({
   video,
   selectedVideo,
@@ -24,7 +31,7 @@ const VideoPlayerNew = memo(function VideoPlayer({
   const currentVideoRef = useRef(null);
 
   useEffect(() => {
-    // reset on mount
+    // reseting on mount
     setQuality(false);
     setStreamUrl(null);
     setAudioStreamUrl(null);
@@ -191,7 +198,7 @@ const VideoPlayerNew = memo(function VideoPlayer({
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.src = "";
-        videoRef.current.load();
+        videoRef.current.load(); // !issue ***, it says videoref will be changed by now
       }
       currentVideoRef.current = null;
       setStreamUrl(null);

@@ -8,13 +8,28 @@ export const VideoList = memo(function VideoList({
   videos,
   onVideoSelect,
   selectedVideo,
+  courseName = null,
 }) {
+  const createSafeId = (name, index) => {
+    if (!name) return `course-${index + 1}`;
+
+    return `${
+      name
+        .replace(/\s+/g, "-") // Replace spaces with hyphens
+        .replace(/[^a-zA-Z0-9-]/g, "") // Remove special characters except hyphens
+        .toLowerCase() // Convert to lowercase
+        .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+        .replace(/^-|-$/g, "") // Remove leading/trailing hyphens
+    }-${index + 1}`;
+  };
+
   return (
     <ScrollArea className="h-fit">
       <div className="px-4 pb-40">
         {videos?.map((video, index) => (
           <div
-            key={index}
+            key={createSafeId(courseName, index)}
+            id={createSafeId(courseName, index)}
             className={`py-2 ${index !== videos.length - 1 ? "border-b border-dashed" : ""}
               ${isDarkMode ? "border-stone-700" : "border-stone-200"}`}
           >
@@ -79,4 +94,5 @@ VideoList.propTypes = {
   videos: PropTypes.array,
   onVideoSelect: PropTypes.func,
   selectedVideo: PropTypes.object,
+  courseName: PropTypes.string,
 };

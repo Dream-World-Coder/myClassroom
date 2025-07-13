@@ -54,6 +54,7 @@ const CourseDetail = memo(function CourseDetail({
               videos={courseData.videos}
               onVideoSelect={setSelectedVideo}
               selectedVideo={selectedVideo}
+              courseName={courseData.courseName}
             />
           </CardContent>
         </Card>

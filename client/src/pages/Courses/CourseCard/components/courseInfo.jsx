@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/badge";
-import { Link, Clock, DraftingCompass, BookText } from "lucide-react";
+import {
+  Copy,
+  Clock,
+  DraftingCompass,
+  BookText,
+  ExternalLink,
+} from "lucide-react";
 import PropTypes from "prop-types";
+import toast from "react-hot-toast";
 
 export const CourseInfo = ({ isDarkMode, courseData, className = "" }) => (
   <div className={`p-4 ${className}`}>
@@ -8,7 +15,7 @@ export const CourseInfo = ({ isDarkMode, courseData, className = "" }) => (
       <div className="overflow-hidden w-24 h-24 rounded-lg shrink-0">
         <img
           className="w-full h-full object-cover"
-          src={courseData.courseThumbnail || "/images/courseThumbnails/2.jpg"}
+          src={courseData.courseThumbnail || "/images/courseThumbnails/2.png"}
           alt="Course Thumbnail"
         />
       </div>
@@ -23,23 +30,26 @@ export const CourseInfo = ({ isDarkMode, courseData, className = "" }) => (
         <div className="flex flex-wrap items-center gap-4 text-sm">
           <Badge
             variant="secondary"
-            className={
-              isDarkMode ? "bg-stone-700 text-stone-200" : "bg-gray-200"
-            }
+            className={`${isDarkMode ? "bg-stone-700 hover:bg-stone-600 text-stone-200" : ""}`}
           >
             {courseData.courseOrganiser}
           </Badge>
           {courseData.courseUrl && (
-            <a
-              href={courseData.courseUrl}
-              target="_blank"
-              className={`inline-flex items-center gap-1 hover:underline ${
+            <div
+              className={`inline-flex items-center gap-1 ${
                 isDarkMode ? "text-stone-300" : "text-stone-600"
               }`}
+              onClick={() => {
+                navigator.clipboard.writeText(courseData.courseUrl);
+                toast.success("copied");
+              }}
             >
-              <Link className="w-4 h-4" />
-              Course Link
-            </a>
+              <Copy className="w-4 h-4" />
+              YouTube Link
+              <a href={courseData.courseUrl} target="_blank">
+                <ExternalLink className="size-4" />
+              </a>
+            </div>
           )}
           {courseData.courseDuration && (
             <span
