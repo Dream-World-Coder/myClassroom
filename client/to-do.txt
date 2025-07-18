@@ -26,3 +26,11 @@ users - collections table instead only users. check url & match.
 Darkmode context
 
 SWITCH TO PROD
+
+Best quality off also trigges best quality, need state variables for it.
+
+SEO in index.html
+
+
+
+****** Compare glass's blur ness with convolution blur

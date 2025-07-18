@@ -85,7 +85,7 @@ html.dark .color-scale-3 {
   z-index: 999;
 }
 
-/* Optional: Arrow */
+/* Arrow */
 .react-calendar-heatmap rect[data-tooltip]:hover::before {
   content: "";
   position: absolute;
