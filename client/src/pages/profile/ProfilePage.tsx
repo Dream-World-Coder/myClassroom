@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   User,
   Mail,
@@ -10,76 +11,27 @@ import {
   BookOpen,
   Clock,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import Header from "../../components/Headers/Header";
-import LogoutButton from "./components";
 import { toast } from "sonner";
 
-// -> moved ProfileField outside the component to prevent recreation on each render
-const ProfileField = ({
-  field,
-  profile,
-  setProfile,
-  isEditing,
-  isDarkMode,
-}) => {
-  const handleInputChange = (fieldId, value) => {
-    setProfile((prev) => ({
-      ...prev,
-      [fieldId]: value,
-    }));
-  };
+import Header from "../../components/Headers/Header";
+import { useAuth } from "../../contexts/AuthContext";
+import { useDarkMode } from "@/contexts/ThemeContext";
+import { ProfileField, LogoutButton } from "./components";
+import type { User as Profile } from "@/components/types";
 
-  return (
-    <div>
-      <label
-        className={`text-sm font-medium block mb-1.5 ${
-          isDarkMode ? "text-stone-300" : "text-stone-600"
-        }`}
-      >
-        {field.label}
-      </label>
-      <div className="flex items-center gap-2">
-        <field.icon className="w-4 h-4 text-stone-400" />
-        <Input
-          value={profile[field.id] || ""}
-          placeholder={field.placeholder}
-          onChange={(e) => handleInputChange(field.id, e.target.value)}
-          disabled={!isEditing}
-          className={
-            isDarkMode
-              ? "bg-[#111] border-zinc-700 text-neutral-200"
-              : "border-slate-300"
-          }
-        />
-      </div>
-    </div>
-  );
-};
-ProfileField.propTypes = {
-  field: PropTypes.object,
-  profile: PropTypes.object,
-  setProfile: PropTypes.func,
-  isEditing: PropTypes.bool,
-  isDarkMode: PropTypes.bool,
-};
+import { formatDate } from "@/services/formatDate";
 
 const ProfilePage = () => {
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
-  );
-  const [activeLink, setActiveLink] = useState("Profile");
+  const { isDarkMode } = useDarkMode();
   const { logout, token } = useAuth();
   const navigate = useNavigate();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [profile, setProfile] = useState<Profile>({
     profileImg: "",
     username: "johndoe123",
     email: "john.doe@example.com",
@@ -91,14 +43,14 @@ const ProfilePage = () => {
     lastFiveLogin: [],
   });
 
-  const [originalProfile, setOriginalProfile] = useState(profile);
+  const [originalProfile, setOriginalProfile] = useState<Profile>(profile);
 
   const handleEdit = () => {
     setIsEditing(true);
     setOriginalProfile(profile); // Store the original state for cancel
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsEditing(false);
     if (profile.actualName == null) {
       toast.error("Some error occurred, Please Try again");
@@ -139,7 +91,7 @@ const ProfilePage = () => {
         toast.error(err);
       }
     }
-    updateUserData();
+    await updateUserData();
   };
 
   const handleCancel = () => {
@@ -150,18 +102,6 @@ const ProfilePage = () => {
   const handleLogout = () => {
     logout();
     navigate("/login");
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-
-    const dd = date.getDate().toString().padStart(2, "0");
-    const mm = (date.getMonth() + 1).toString().padStart(2, "0"); // +1 because months are 0-indexed
-    const yy = date.getFullYear().toString().slice(-2);
-    const hrs = date.getHours().toString().padStart(2, "0");
-    const mins = date.getMinutes().toString().padStart(2, "0");
-
-    return `${dd}-${mm}-${yy} ${hrs}:${mins}`;
   };
 
   useEffect(() => {
@@ -188,7 +128,7 @@ const ProfilePage = () => {
           throw new Error(errorData.error || "Failed to fetch course data");
         }
         const data = await response.json();
-        await setProfile(data);
+        setProfile(data);
       } catch (err) {
         console.error("Error fetching course data:", err);
       }
@@ -197,15 +137,6 @@ const ProfilePage = () => {
   }, [token]);
 
   const profileFields = [
-    // handle seperately cuz email is gonna be fixed -> no change
-    // and for username and password change you hvae to re enter the password,
-    // localhost:5050/api/v1/u/change-password, /api/v1/u/change-username
-    // {
-    //     id: "username",
-    //     label: "Username",
-    //     icon: User,
-    //     placeholder: "Enter username",
-    // },
     {
       id: "actualName",
       label: "Full Name",
@@ -234,12 +165,7 @@ const ProfilePage = () => {
 
   return (
     <>
-      <Header
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        activeLink={activeLink}
-        setActiveLink={setActiveLink}
-      />
+      <Header />
       <div
         className={`min-h-screen p-6 ${isDarkMode ? "bg-[#111] text-white" : "bg-gray-50 text-black"}`}
       >
@@ -334,10 +260,7 @@ const ProfilePage = () => {
                           </Button>
                         )}
                       </div>
-                      <LogoutButton
-                        isDarkMode={isDarkMode}
-                        handleLogout={handleLogout}
-                      />
+                      <LogoutButton handleLogout={handleLogout} />
                     </div>
                   </div>
 
@@ -389,7 +312,6 @@ const ProfilePage = () => {
                     profile={profile}
                     setProfile={setProfile}
                     isEditing={isEditing}
-                    isDarkMode={isDarkMode}
                   />
                 ))}
               </div>

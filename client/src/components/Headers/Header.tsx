@@ -1,38 +1,20 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, X, Search, Moon, Sun } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-
-interface HeaderProps {
-  isDarkMode: boolean;
-  setIsDarkMode: (value: boolean) => void;
-  activeLink?: string;
-  setActiveLink: (link: string) => void;
-}
+import { useDarkMode } from "@/contexts/ThemeContext";
 
 interface NavItems {
   name: string;
   href: string;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  isDarkMode,
-  setIsDarkMode,
-  activeLink,
-  setActiveLink,
-}) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, token } = useAuth();
-  const isAuthenticated = !!(user && token);
-
-  const toggleDarkMode = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    localStorage.setItem("isDarkModeOn", JSON.stringify(newMode));
-  };
-  const changeActiveLink: (item: NavItems) => void = (item) => {
-    setActiveLink(item.name);
-  };
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const { isAuthenticated } = useAuth();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const navLinks: NavItems[] = [
     { name: "Home", href: "/" },
@@ -46,6 +28,11 @@ const Header: React.FC<HeaderProps> = ({
     { name: "Login", href: "/login" },
     { name: "Profile", href: "/profile" },
   ];
+
+  const activeHref: string = window.location.pathname;
+  const activeLink: string | undefined = navLinks.find(
+    (i) => i.href === activeHref,
+  )?.name;
 
   return (
     <header
@@ -81,9 +68,6 @@ const Header: React.FC<HeaderProps> = ({
                     <NavLink
                       key={index}
                       to={item.href}
-                      onClick={() => {
-                        changeActiveLink(item);
-                      }}
                       className={`h-16 inline-flex items-center px-1 text-sm font-medium
                                 hover:text-lime-500
                                 ${
@@ -124,7 +108,7 @@ const Header: React.FC<HeaderProps> = ({
 
             <div className="flex items-center space-x-4">
               <button
-                onClick={toggleDarkMode}
+                onClick={() => toggleDarkMode(!isDarkMode)}
                 className={`p-1.5 rounded-xs hover:bg-gray-100 ${isDarkMode ? "hover:bg-stone-800" : ""}`}
               >
                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}

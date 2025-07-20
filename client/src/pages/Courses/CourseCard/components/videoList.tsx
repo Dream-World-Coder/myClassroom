@@ -1,22 +1,36 @@
-import { memo } from "react";
+import React, { memo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Play } from "lucide-react";
 
+import { useDarkMode } from "@/contexts/ThemeContext";
+import type { Video } from "@/components/types";
+
+interface VideoListType {
+  videos: Video[];
+  selectedVideo: Video | null;
+  onVideoSelect: React.Dispatch<React.SetStateAction<Video | null>>;
+  courseName: string | null;
+}
+
 export const VideoList = memo(function VideoList({
-  isDarkMode,
   videos,
   onVideoSelect,
   selectedVideo,
   courseName = null,
-}) {
-  const createSafeId = (name, index) => {
+}: VideoListType) {
+  const { isDarkMode } = useDarkMode();
+
+  const createSafeId = (
+    name: string | null | undefined,
+    index: number,
+  ): string => {
     if (!name) return `course-${index + 1}`;
 
     return `${
       name
-        .replace(/\s+/g, "-") // Replace spaces with hyphens
+        .replace(/\s+/g, "-")
         .replace(/[^a-zA-Z0-9-]/g, "") // Remove special characters except hyphens
-        .toLowerCase() // Convert to lowercase
+        .toLowerCase()
         .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
         .replace(/^-|-$/g, "") // Remove leading/trailing hyphens
     }-${index + 1}`;
@@ -87,11 +101,3 @@ export const VideoList = memo(function VideoList({
     </ScrollArea>
   );
 });
-
-VideoList.propTypes = {
-  isDarkMode: PropTypes.bool,
-  videos: PropTypes.array,
-  onVideoSelect: PropTypes.func,
-  selectedVideo: PropTypes.object,
-  courseName: PropTypes.string,
-};

@@ -1,7 +1,7 @@
 db.users.findOne({ username: "Subhajit" }).courses.forEach((course) => {
-    course.videos.forEach((video) => {
-        console.log(video.watched);
-    });
+  course.videos.forEach((video) => {
+    console.log(video.watched);
+  });
 });
 
 /*
@@ -43,38 +43,36 @@ https://www.youtube.com/watch?v=CfW845LNObM
 */
 
 db.users.findOne({ username: "Subhajit" }).courses.forEach((course) => {
-    course.videos.forEach((video) => {
-        if (video.videoUrl == "https://www.youtube.com/watch?v=CfW845LNObM") {
-            return video;
-        }
-    });
+  course.videos.forEach((video) => {
+    if (video.videoUrl == "https://www.youtube.com/watch?v=CfW845LNObM") {
+      return video;
+    }
+  });
 });
 
 db.users.aggregate([
-    { $match: { username: "Subhajit" } },
-    { $unwind: "$courses" },
-    { $unwind: "$courses.videos" },
-    {
-        $match: {
-            "courses.videos.videoUrl":
-                "https://www.youtube.com/watch?v=O85OWBJ2ayo",
-        },
+  { $match: { username: "Subhajit" } },
+  { $unwind: "$courses" },
+  { $unwind: "$courses.videos" },
+  {
+    $match: {
+      "courses.videos.videoUrl": "https://www.youtube.com/watch?v=O85OWBJ2ayo",
     },
-    { $project: { _id: 0, "courses.videos": 1 } },
+  },
+  { $project: { _id: 0, "courses.videos": 1 } },
 ]);
 
 // https://youtu.be/p_di4Zn4wz4?si=5sc84PU796Cq8UGA
 
 db.users.update_many(
-    {
-        username: "Subhajit",
-        "courses.videos.videoUrl":
-            "https://www.youtube.com/watch?v=O85OWBJ2ayo",
-    },
-    {
-        $set: { "courses.$[].videos.$[vid].watched": true },
-    },
-    (array_filters = [
-        { "vid.videoUrl": "https://www.youtube.com/watch?v=O85OWBJ2ayo" },
-    ]),
+  {
+    username: "Subhajit",
+    "courses.videos.videoUrl": "https://www.youtube.com/watch?v=O85OWBJ2ayo",
+  },
+  {
+    $set: { "courses.$[].videos.$[vid].watched": true },
+  },
+  (array_filters = [
+    { "vid.videoUrl": "https://www.youtube.com/watch?v=O85OWBJ2ayo" },
+  ]),
 );

@@ -1,11 +1,11 @@
-import Header from "../../components/Headers/Header";
 import { useState } from "react";
+import Header from "../../components/Headers/Header";
 
-const ContactPage = () => {
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
+const AboutAndContactPage = () => {
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() =>
+    JSON.parse(localStorage.getItem("isDarkModeOn") || "false"),
   );
-  const [activeLink, setActiveLink] = useState("About & Contact");
+  const [activeLink, setActiveLink] = useState<string>("About & Contact");
 
   return (
     <div
@@ -24,7 +24,9 @@ const ContactPage = () => {
         {/* About */}
         <section className="mb-20">
           <h2
-            className={`text-3xl font-bold mb-8 ${isDarkMode ? "text-neutral-200" : ""}`}
+            className={`text-3xl font-bold mb-8 ${
+              isDarkMode ? "text-neutral-200" : ""
+            }`}
           >
             About myClassroom
           </h2>
@@ -47,8 +49,13 @@ const ContactPage = () => {
               <a
                 href="https://github.com/dream-World-Coder/myClassroom"
                 target="_blank"
+                rel="noreferrer"
                 className={`block px-2 py-1 rounded-lg border w-fit mt-2
-                  ${isDarkMode ? "text-lime-500 border-[#222] bg-[#171717]" : "border-gray-200 bg-gray-200 text-lime-950"}`}
+                  ${
+                    isDarkMode
+                      ? "text-lime-500 border-[#222] bg-[#171717]"
+                      : "border-gray-200 bg-gray-200 text-lime-950"
+                  }`}
               >
                 Contribute / Star This Repo
               </a>
@@ -59,7 +66,9 @@ const ContactPage = () => {
         {/* Contact */}
         <section>
           <h2
-            className={`text-3xl font-bold mb-8 ${isDarkMode ? "text-neutral-200" : ""}`}
+            className={`text-3xl font-bold mb-8 ${
+              isDarkMode ? "text-neutral-200" : ""
+            }`}
           >
             Contact
           </h2>
@@ -105,4 +114,4 @@ const ContactPage = () => {
   );
 };
 
-export default ContactPage;
+export default AboutAndContactPage;

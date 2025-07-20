@@ -1,26 +1,32 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "../../contexts/AuthContext";
 
-const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
+
+const LoginPage = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the redirect path from location state, or default to dashboard
-  const from = location.state?.from?.pathname || "/";
+  // Get the redirect path from location state, or default to home
+  const from = (location.state as LocationState)?.from?.pathname || "/";
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    setShowPassword((prev) => !prev);
   };
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -40,15 +46,13 @@ const LoginPage: React.FC = () => {
       if (response.ok) {
         login(data.token);
         toast.success("Login Successful!");
-        // Small delay to ensure token is set and toast is visible
         setTimeout(() => {
-          // Navigate to the intended page or dashboard
           navigate(from, { replace: true });
         }, 300);
       } else {
         toast.error(data.error || "Login failed!");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Login Error:", error);
       toast.error("Something went wrong!");
     } finally {
@@ -70,7 +74,9 @@ const LoginPage: React.FC = () => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
               className="w-full bg-stone-800 text-white rounded-lg px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-lime-500"
               placeholder="Enter your email"
               required
@@ -84,8 +90,10 @@ const LoginPage: React.FC = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-stone-800 text-white rounded-lg px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-lime-500 pr-12" // Add padding for the button
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
+                className="w-full bg-stone-800 text-white rounded-lg px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-lime-500 pr-12"
                 placeholder="Enter your password"
                 required
               />
@@ -96,17 +104,16 @@ const LoginPage: React.FC = () => {
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <EyeOff className="w-5 h-5" /> // Eye-off icon when password is visible
+                  <EyeOff className="w-5 h-5" />
                 ) : (
-                  <Eye className="w-5 h-5" /> // Eye icon when password is hidden
+                  <Eye className="w-5 h-5" />
                 )}
               </button>
             </div>
           </div>
           <button
             type="submit"
-            className="w-full bg-lime-500 text-black font-semibold py-3
-                        rounded-lg hover:bg-lime-400 transition duration-300 flex justify-center items-center"
+            className="w-full bg-lime-500 text-black font-semibold py-3 rounded-lg hover:bg-lime-400 transition duration-300 flex justify-center items-center"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -117,16 +124,19 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
         <div className="text-right">
-          <a href="#" className="text-lime-500 text-sm hover:underline">
+          <NavLink
+            to="/forgot-password"
+            className="text-lime-500 text-sm hover:underline"
+          >
             Forgot Password?
-          </a>
+          </NavLink>
         </div>
         <div className="mt-6 text-center">
           <p className="text-gray-400">
             Don&apos;t have an account?{" "}
-            <a href="/register" className="text-lime-500 hover:underline">
+            <NavLink to="/register" className="text-lime-500 hover:underline">
               Sign Up
-            </a>
+            </NavLink>
           </p>
         </div>
         <div className="mt-4 space-y-2">

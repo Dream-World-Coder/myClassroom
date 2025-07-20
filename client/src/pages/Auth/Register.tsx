@@ -1,26 +1,32 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import { toast } from "sonner";
 
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
+
 const RegisterPage = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || "/";
+  const from = (location.state as LocationState)?.from?.pathname || "/";
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    setShowPassword((prev) => !prev);
   };
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -38,7 +44,7 @@ const RegisterPage = () => {
 
       const data = await response.json();
       if (response.ok) {
-        login(data.token); // Save token in context
+        login(data.token);
         toast.success("Registration Successful!");
         setTimeout(() => {
           navigate(from, { replace: true });
@@ -46,7 +52,7 @@ const RegisterPage = () => {
       } else {
         toast.error(data.error || "Registration failed!");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Signup Error:", error);
       toast.error("Something went wrong!");
     } finally {
@@ -68,7 +74,9 @@ const RegisterPage = () => {
             <input
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setUsername(e.target.value)
+              }
               className="w-full bg-stone-800 text-white rounded-lg px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-lime-500"
               placeholder="Username"
               required
@@ -81,7 +89,9 @@ const RegisterPage = () => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
               className="w-full bg-stone-800 text-white rounded-lg px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-lime-500"
               placeholder="Email"
               required
@@ -93,10 +103,12 @@ const RegisterPage = () => {
             </label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"} // Toggle between text and password
+                type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-stone-800 text-white rounded-lg px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-lime-500 pr-12" // Add padding for the button
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPassword(e.target.value)
+                }
+                className="w-full bg-stone-800 text-white rounded-lg px-4 py-3 focus:outline-hidden focus:ring-2 focus:ring-lime-500 pr-12"
                 placeholder="Enter your password"
                 required
               />
@@ -107,17 +119,16 @@ const RegisterPage = () => {
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
-                  <EyeOff className="w-5 h-5" /> // Eye-off icon when password is visible
+                  <EyeOff className="w-5 h-5" />
                 ) : (
-                  <Eye className="w-5 h-5" /> // Eye icon when password is hidden
+                  <Eye className="w-5 h-5" />
                 )}
               </button>
             </div>
           </div>
           <button
             type="submit"
-            className="w-full bg-lime-500 text-black font-semibold py-3
-                        rounded-lg hover:bg-lime-400 transition duration-300 flex justify-center items-center"
+            className="w-full bg-lime-500 text-black font-semibold py-3 rounded-lg hover:bg-lime-400 transition duration-300 flex justify-center items-center"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -130,9 +141,9 @@ const RegisterPage = () => {
         <div className="mt-6 text-center">
           <p className="text-gray-400">
             Already have an account?{" "}
-            <a href="/login" className="text-lime-500 hover:underline">
+            <NavLink to="/login" className="text-lime-500 hover:underline">
               Log In
-            </a>
+            </NavLink>
           </p>
         </div>
         <div className="mt-4 space-y-2">

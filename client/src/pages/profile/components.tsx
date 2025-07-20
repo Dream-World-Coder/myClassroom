@@ -1,3 +1,4 @@
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,9 +10,74 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useDarkMode } from "@/contexts/ThemeContext";
+import type { User } from "@/components/types";
+import type { LucideProps } from "lucide-react";
 
-const LogoutButton = ({ isDarkMode, handleLogout }) => {
+type profileField = {
+  profile: User;
+  setProfile: React.Dispatch<React.SetStateAction<User>>;
+  isEditing: boolean;
+  field: {
+    id: string;
+    label: string;
+    icon: React.ForwardRefExoticComponent<
+      Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
+    >;
+    placeholder: string;
+  };
+};
+
+export const ProfileField = ({
+  field,
+  profile,
+  setProfile,
+  isEditing,
+}: profileField) => {
+  const { isDarkMode } = useDarkMode();
+
+  const handleInputChange = (fieldId: string, value: string) => {
+    setProfile((prev) => ({
+      ...prev,
+      [fieldId]: value,
+    }));
+  };
+
+  return (
+    <div>
+      <label
+        className={`text-sm font-medium block mb-1.5 ${
+          isDarkMode ? "text-stone-300" : "text-stone-600"
+        }`}
+      >
+        {field.label}
+      </label>
+      <div className="flex items-center gap-2">
+        <field.icon className="w-4 h-4 text-stone-400" />
+        <Input
+          value={profile[field.id] || ""}
+          placeholder={field.placeholder}
+          onChange={(e) => handleInputChange(field.id, e.target.value)}
+          disabled={!isEditing}
+          className={
+            isDarkMode
+              ? "bg-[#111] border-zinc-700 text-neutral-200"
+              : "border-slate-300"
+          }
+        />
+      </div>
+    </div>
+  );
+};
+
+export const LogoutButton = ({
+  handleLogout,
+}: {
+  handleLogout: () => void;
+}) => {
+  const { isDarkMode } = useDarkMode();
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -29,18 +95,18 @@ const LogoutButton = ({ isDarkMode, handleLogout }) => {
       <AlertDialogContent
         className={`${
           isDarkMode
-            ? "bg-gray-900 border-gray-800"
-            : "bg-white border-gray-200"
+            ? "bg-neutral-900 border-neutral-800"
+            : "bg-white border-neutral-200"
         } border-2`}
       >
         <AlertDialogHeader>
           <AlertDialogTitle
-            className={isDarkMode ? "text-white" : "text-gray-900"}
+            className={isDarkMode ? "text-white" : "text-neutral-900"}
           >
             Are you sure you want to logout?
           </AlertDialogTitle>
           <AlertDialogDescription
-            className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+            className={isDarkMode ? "text-neutral-400" : "text-neutral-500"}
           >
             You will need to sign in again to access your account.
           </AlertDialogDescription>
@@ -49,8 +115,8 @@ const LogoutButton = ({ isDarkMode, handleLogout }) => {
           <AlertDialogCancel
             className={`${
               isDarkMode
-                ? "bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700"
-                : "bg-gray-100 border-gray-200 text-gray-900 hover:bg-gray-200"
+                ? "bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700"
+                : "bg-neutral-100 border-neutral-200 text-neutral-900 hover:bg-neutral-200"
             }`}
           >
             Cancel
@@ -70,5 +136,3 @@ const LogoutButton = ({ isDarkMode, handleLogout }) => {
     </AlertDialog>
   );
 };
-
-export default LogoutButton;

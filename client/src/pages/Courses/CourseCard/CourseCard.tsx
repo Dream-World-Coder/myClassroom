@@ -3,16 +3,24 @@ import { ChevronLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import VideoPlayer from "./components/player";
-import { CourseInfo } from "./components/courseInfo";
-import { VideoList } from "./components/videoList";
+import { CourseInfoHeader } from "./components/CourseHeader";
+import { VideoList } from "./components/VideoList";
+import { VideoPlayer } from "./components/VideoPlayer";
+
+import { useDarkMode } from "@/contexts/ThemeContext";
+import type { Course, Video } from "@/components/types";
+
+interface CourseDetailType {
+  courseData: Course;
+  rounded?: string;
+}
 
 const CourseDetail = memo(function CourseDetail({
-  isDarkMode,
   courseData,
   rounded = "rounded-lg",
-}) {
-  const [selectedVideo, setSelectedVideo] = useState(null);
+}: CourseDetailType) {
+  const { isDarkMode } = useDarkMode();
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
   return (
     <div className={`${isDarkMode ? "bg-[#111]" : "bg-gray-50"}`}>
@@ -22,9 +30,7 @@ const CourseDetail = memo(function CourseDetail({
           <div className="w-full">
             <div className="sticky top-0 z-10">
               <VideoPlayer
-                isDarkMode={isDarkMode}
                 video={selectedVideo}
-                selectedVideo={selectedVideo}
                 setSelectedVideo={setSelectedVideo}
               />
               <Button
@@ -43,16 +49,14 @@ const CourseDetail = memo(function CourseDetail({
           className={`flex-1 border-0 rounded-none ${isDarkMode ? "bg-[#222]" : "bg-gray-50"}`}
         >
           <CardContent className="p-0">
-            <CourseInfo
-              isDarkMode={isDarkMode}
+            <CourseInfoHeader
               courseData={courseData}
               className={selectedVideo ? "hidden" : "block"}
             />
             <VideoList
-              isDarkMode={isDarkMode}
               videos={courseData.videos}
-              onVideoSelect={setSelectedVideo}
               selectedVideo={selectedVideo}
+              onVideoSelect={setSelectedVideo}
               courseName={courseData.courseName}
             />
           </CardContent>
@@ -67,12 +71,12 @@ const CourseDetail = memo(function CourseDetail({
           className={`h-fit ${isDarkMode ? "bg-[#222] border-stone-800" : "bg-white border-gray-100"}`}
         >
           <CardContent className="p-4">
-            <CourseInfo isDarkMode={isDarkMode} courseData={courseData} />
+            <CourseInfoHeader courseData={courseData} />
             <VideoList
-              isDarkMode={isDarkMode}
               videos={courseData.videos}
               onVideoSelect={setSelectedVideo}
               selectedVideo={selectedVideo}
+              courseName={courseData.courseName}
             />
           </CardContent>
         </Card>
@@ -85,8 +89,6 @@ const CourseDetail = memo(function CourseDetail({
           >
             <VideoPlayer
               video={selectedVideo}
-              isDarkMode={isDarkMode}
-              selectedVideo={selectedVideo}
               setSelectedVideo={setSelectedVideo}
             />
           </div>
@@ -97,10 +99,5 @@ const CourseDetail = memo(function CourseDetail({
     </div>
   );
 });
-CourseDetail.propTypes = {
-  isDarkMode: PropTypes.bool,
-  courseData: PropTypes.object,
-  rounded: PropTypes.string,
-};
 
 export default CourseDetail;

@@ -1,7 +1,29 @@
-// Quality.jsx
-
+import React from "react";
 import { toast } from "sonner";
 import { useAuth } from "../../../../contexts/AuthContext";
+import type { Video } from "@/components/types";
+
+interface QTType {
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+
+  bestQuality: boolean;
+  setQuality: (x: boolean | ((prev: boolean) => boolean)) => void;
+
+  video: Video;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+
+  setStreamUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  setAudioStreamUrl: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+interface ResType {
+  directLinks: {
+    videoLink: string;
+    audioLink: string;
+  };
+  error?: string;
+}
 
 export default function QualityToggle({
   isLoading = false,
@@ -12,7 +34,7 @@ export default function QualityToggle({
   videoRef,
   setStreamUrl,
   setAudioStreamUrl,
-}) {
+}: QTType) {
   const { token } = useAuth();
 
   const handleToggle = async () => {
@@ -35,7 +57,7 @@ export default function QualityToggle({
       );
 
       if (!response.ok) throw new Error("Request failed");
-      let data = await response.json();
+      const data: ResType = await response.json();
       if (data.error) {
         console.error(data.error);
         toast.error(data.error);
@@ -47,16 +69,18 @@ export default function QualityToggle({
         setAudioStreamUrl(data.directLinks.audioLink);
 
         if (videoRef.current) {
-          videoRef.current.src = data.directLinks.videoLink;
-          videoRef.current.load();
+          const videoEl = videoRef.current;
+
+          videoEl.src = data.directLinks.videoLink;
+          videoEl.load();
 
           // Resume playback from the same time
-          videoRef.current.addEventListener(
+          videoEl.addEventListener(
             "loadedmetadata",
             () => {
-              videoRef.current.currentTime = currentTime;
+              videoEl.currentTime = currentTime;
               if (wasPlaying) {
-                videoRef.current.play();
+                videoEl.play();
               }
             },
             { once: true },
@@ -67,7 +91,7 @@ export default function QualityToggle({
       }
     } catch (error) {
       console.error("Error updating watch status:", error);
-      setQuality((prev) => !prev); // Revert if fetch fails
+      setQuality((prev: boolean) => !prev); // Revert if fetch fails
       toast.error("Failed to update video quality");
     } finally {
       setIsLoading(false);
@@ -84,7 +108,7 @@ export default function QualityToggle({
           bestQuality ? "bg-green-500" : "bg-gray-300"
         } ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       >
-        {/* Round handle */}
+        {/* round handle */}
         <span
           className={`absolute top-1 left-1 w-2 h-2 bg-white rounded-full transition-transform ${
             bestQuality ? "translate-x-4" : "translate-x-0"
@@ -94,13 +118,3 @@ export default function QualityToggle({
     </div>
   );
 }
-QualityToggle.propTypes = {
-  isLoading: PropTypes.bool,
-  bestQuality: PropTypes.bool,
-  setIsLoading: PropTypes.func,
-  setQuality: PropTypes.func,
-  video: PropTypes.object,
-  videoRef: PropTypes.object,
-  setStreamUrl: PropTypes.func,
-  setAudioStreamUrl: PropTypes.func,
-};

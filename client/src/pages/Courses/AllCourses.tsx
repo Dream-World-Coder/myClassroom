@@ -1,11 +1,5 @@
-/*
-const [allCourses, setAllCourses] = useState([]);
-// why it worked as soon as used useState([]) instead useState(null)?
-// if type change was the problem then why error are working fine?
-const [error, setError] = useState(null);
-*/
-
 import { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -15,31 +9,30 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, User } from "lucide-react";
+import { toast } from "sonner";
+
 import Header from "../../components/Headers/Header";
-import { NavLink } from "react-router-dom";
+import { useDarkMode } from "@/contexts/ThemeContext";
+import type { Course } from "@/components/types";
 
 export default function AllCourses({
   asComponent = false,
-  parentDarkMode = true,
+}: {
+  asComponent: boolean;
 }) {
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
-  );
-  const [allCourses, setAllCourses] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [activeLink, setActiveLink] = useState("My Courses");
+  const { isDarkMode } = useDarkMode();
 
-  useEffect(() => {
-    setIsDarkMode(JSON.parse(localStorage.getItem("isDarkModeOn")));
-  }, [parentDarkMode]);
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getAllCourses = async () => {
       try {
         const token = localStorage.getItem("token") || null;
         if (!token) {
-          console.error("\n\nAuthorisation token is NULL.");
+          console.error("\nAuthorisation token is NULL.");
+          toast.error("some error occurred");
           return;
         }
 
@@ -60,11 +53,11 @@ export default function AllCourses({
         }
 
         const data = await response.json();
-        await setAllCourses(data.courses);
+        setAllCourses(data.courses);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching course data:", err);
-        setError(err.message);
+        setError(err instanceof Error ? err.message : "some error occurred");
         setLoading(false);
       }
     };
@@ -78,14 +71,7 @@ export default function AllCourses({
         isDarkMode ? "bg-[#111] text-stone-100" : "bg-gray-50 text-gray-800"
       }`}
     >
-      {!asComponent && (
-        <Header
-          isDarkMode={isDarkMode}
-          setIsDarkMode={setIsDarkMode}
-          activeLink={activeLink}
-          setActiveLink={setActiveLink}
-        />
-      )}
+      {!asComponent && <Header />}
       <div
         className={`max-w-7xl mx-auto ${asComponent && "py-2 px-0"} ${!asComponent && "py-8 px-4"}`}
       >
@@ -129,7 +115,7 @@ export default function AllCourses({
 
                 <CardHeader className="space-y-2">
                   <h3
-                    className={`text-xl font-semibold line-clamp-2 ${
+                    className={`text-xl font-semibold line-clamp-2 pt-3 ${
                       isDarkMode ? "text-stone-200" : "text-stone-900"
                     }`}
                   >
@@ -163,7 +149,7 @@ export default function AllCourses({
 
                   <div className="space-y-2">
                     <Progress
-                      value={parseInt(course.progress.slice(0, -1))}
+                      value={parseInt(course?.progress?.slice(0, -1) || "0")}
                       className={`h-2 ${isDarkMode ? "bg-neutral-800" : "bg-gray-100"}`}
                     />
 
@@ -210,7 +196,3 @@ export default function AllCourses({
     </div>
   );
 }
-AllCourses.propTypes = {
-  asComponent: PropTypes.bool,
-  parentDarkMode: PropTypes.bool,
-};

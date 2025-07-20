@@ -1,17 +1,29 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 
+interface WTType {
+  videoUrl: string;
+  isLoading: boolean;
+  setIsLoading: (x: boolean) => void;
+}
+
+interface ResType {
+  watchStatus?: string;
+  error?: string;
+  message?: string;
+}
+
 export default function WatchToggle({
   videoUrl,
   isLoading = false,
   setIsLoading,
-}) {
-  const [watched, setWatched] = useState(false);
+}: WTType) {
+  const [watched, setWatched] = useState<boolean>(false);
   const { token } = useAuth();
-  const videoId = videoUrl.split("v=")[1];
+  const videoId: string = videoUrl.split("v=")[1];
 
   useEffect(() => {
-    const fetchStatus = async () => {
+    const fetchStatus = async (): Promise<void> => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/api/v1/video-watch-status?videoId=${videoId}`,
@@ -23,9 +35,11 @@ export default function WatchToggle({
             },
           },
         );
-        const data = await response.json();
-        if (data.watchStatus !== undefined) {
-          data.watchStatus == "True" ? setWatched(true) : setWatched(false);
+        const data: ResType = await response.json();
+        if (data.watchStatus && data.watchStatus == "True") {
+          setWatched(true);
+        } else {
+          setWatched(false);
         }
         // console.log(`\n\ndata.watchStatus=${data.watchStatus}\n`);
         // console.log(`\n\nwatched=${watched}\n`);
@@ -37,7 +51,7 @@ export default function WatchToggle({
     fetchStatus();
   }, [videoUrl]);
 
-  const handleToggle = async () => {
+  const handleToggle = async (): Promise<void> => {
     const newState = !watched;
     setWatched(newState);
     setIsLoading(true);
@@ -59,7 +73,8 @@ export default function WatchToggle({
       );
 
       if (!response.ok) throw new Error("Failed to update status");
-      let data = response.json();
+
+      const data: ResType = await response.json();
       console.log(data.message, data.watchStatus);
     } catch (error) {
       console.error("Error updating watch status:", error);
@@ -89,9 +104,3 @@ export default function WatchToggle({
     </div>
   );
 }
-
-WatchToggle.propTypes = {
-  videoUrl: PropTypes.string,
-  isLoading: PropTypes.bool,
-  setIsLoading: PropTypes.func,
-};

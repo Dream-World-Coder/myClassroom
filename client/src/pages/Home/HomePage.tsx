@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
+import CalendarHeatmap from "react-calendar-heatmap";
 import { Target, Plus, Trash2, ListTodo, ChevronRight } from "lucide-react";
-import Header from "../../components/Headers/Header";
-import { useAuth } from "../../contexts/AuthContext";
-import AllCourses from "../Courses/AllCourses";
 import { Badge } from "@/components/ui/badge";
+import "react-calendar-heatmap/dist/styles.css";
+import { subMonths, endOfToday } from "date-fns";
 import {
   Card,
   CardContent,
@@ -11,66 +12,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { NavLink } from "react-router-dom";
-import note from "./note.svg";
-import CalendarHeatmap from "react-calendar-heatmap";
-import "react-calendar-heatmap/dist/styles.css";
-import { subMonths, endOfToday } from "date-fns";
-// import { StreakHeatmap } from "./components";
 
-// add a powerful notes section for better oraganising study materials
+import Header from "../../components/Headers/Header";
+import AllCourses from "../Courses/AllCourses";
+import { useAuth } from "../../contexts/AuthContext";
+import { useDarkMode } from "@/contexts/ThemeContext";
+import type { Goal, Remainder } from "@/components/types";
+
+import note from "./note.svg";
+
+// to-do: add a powerful notes section for better organising study materials
 
 const HomeDashboard = () => {
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
-  );
-  const [goals, setGoals] = useState(() => {
+  const { isDarkMode } = useDarkMode();
+  const { isAuthenticated } = useAuth();
+
+  /**
+   * Goals
+   */
+  const [goals, setGoals] = useState<Goal[]>(() => {
     const savedGoals = localStorage.getItem("studyGoals");
     return savedGoals ? JSON.parse(savedGoals) : [];
   });
-  const [newGoal, setNewGoal] = useState("");
-  const [activeLink, setActiveLink] = useState("Home");
-  const { user, token } = useAuth();
-
-  const today = endOfToday();
-  const startDate = subMonths(today, 13);
-
-  const sampleData = [{ date: "2025-06-01", count: 10 }];
+  const [newGoal, setNewGoal] = useState<string>("");
 
   useEffect(() => {
     localStorage.setItem("studyGoals", JSON.stringify(goals));
   }, [goals]);
 
-  const addGoal = (e) => {
+  const addGoal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGoal.trim()) return;
     setGoals([...goals, { id: Date.now(), task: newGoal, done: false }]);
     setNewGoal("");
   };
-
-  const toggleGoal = (id) => {
+  const toggleGoal = (id: number) => {
     setGoals(
       goals.map((goal) =>
         goal.id === id ? { ...goal, done: !goal.done } : goal,
       ),
     );
   };
-
-  const deleteGoal = (id) => {
+  const deleteGoal = (id: number) => {
     setGoals(goals.filter((goal) => goal.id !== id));
   };
 
-  const [remainders, setRemainders] = useState(() => {
+  /**
+   * Remainders
+   */
+  const [remainders, setRemainders] = useState<Remainder[]>(() => {
     const savedRemainders = localStorage.getItem("studyRemainders");
     return savedRemainders ? JSON.parse(savedRemainders) : [];
   });
-  const [newRemainder, setNewRemainder] = useState("");
+  const [newRemainder, setNewRemainder] = useState<string>("");
 
   useEffect(() => {
     localStorage.setItem("studyRemainders", JSON.stringify(remainders));
   }, [remainders]);
 
-  const addRemainder = (e) => {
+  const addRemainder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRemainder.trim()) return;
     setRemainders([
@@ -79,8 +79,7 @@ const HomeDashboard = () => {
     ]);
     setNewRemainder("");
   };
-
-  const toggleRemainder = (id) => {
+  const toggleRemainder = (id: number) => {
     setRemainders(
       remainders.map((remainder) =>
         remainder.id === id
@@ -89,29 +88,27 @@ const HomeDashboard = () => {
       ),
     );
   };
-
-  const deleteRemainder = (id) => {
+  const deleteRemainder = (id: number) => {
     setRemainders(remainders.filter((remainder) => remainder.id !== id));
   };
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDarkMode);
-  }, [isDarkMode]);
+  /**
+   * Heatmap
+   */
+  const today = endOfToday();
+  const startDate = subMonths(today, 13);
+
+  const sampleData = [{ date: "2025-06-01", count: 10 }];
 
   return (
     <div
       className={`min-h-screen font-[poppins] transition-all duration-300
-                ${isDarkMode ? "bg-[#111] text-white" : "bg-gray-50 text-black"}`}
+        ${isDarkMode ? "bg-[#111] text-white" : "bg-gray-50 text-black"}`}
     >
-      <Header
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        activeLink={activeLink}
-        setActiveLink={setActiveLink}
-      />
+      <Header />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {!!user && !!token ? (
+        {isAuthenticated ? (
           <section className="mb-20 transition-all duration-300 cursor-pointer">
             <h2
               className={`text-2xl font-semibold mb-2 md:mb-4 ${isDarkMode ? "text-stone-200" : ""}`}
@@ -174,7 +171,7 @@ const HomeDashboard = () => {
           </section>
         )}
 
-        {!!user && !!token && (
+        {isAuthenticated && (
           <section
             className="mb-4 flex flex-col-reverse md:flex-row items-start justify-center
                     gap-12 md:gap-4 transition-all duration-300"
@@ -322,7 +319,7 @@ const HomeDashboard = () => {
         )}
 
         {/* calander: attandance tracker */}
-        {!!user && !!token && (
+        {isAuthenticated && (
           <section className="w-full space-y-6 mb-20">
             {/* <div className="grid gap-4 md:grid-cols-2"> */}
             <Card
@@ -341,12 +338,12 @@ const HomeDashboard = () => {
                   values={sampleData}
                   classForValue={(value) => {
                     if (!value || value.count === 0) return "color-empty";
-                    if (value.count < 3) return "color-scale-1";
-                    if (value.count < 5) return "color-scale-2";
+                    if ((value.count ?? 0) < 3) return "color-scale-1";
+                    if ((value.count ?? 0) < 5) return "color-scale-2";
                     return "color-scale-3";
                   }}
                   tooltipDataAttrs={(value) => {
-                    if (!value || !value.date) return null;
+                    if (!value || !value.date) return {};
                     return {
                       "data-tooltip": `${value.date} – ${value.count} contributions`,
                     };
@@ -361,7 +358,7 @@ const HomeDashboard = () => {
           </section>
         )}
 
-        {!!user && !!token && (
+        {isAuthenticated && (
           <section>
             <h2
               className={`text-2xl font-semibold mb-2 ${isDarkMode ? "text-stone-200" : ""}`}
@@ -369,8 +366,7 @@ const HomeDashboard = () => {
               All Courses
             </h2>
 
-            {/* only if logged in */}
-            <AllCourses asComponent={true} parentDarkMode={isDarkMode} />
+            <AllCourses asComponent={true} />
           </section>
         )}
       </main>

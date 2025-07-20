@@ -1,34 +1,43 @@
-import { useRef, useEffect, useState, useMemo, memo } from "react";
+import React, { useRef, useEffect, useState, useMemo, memo } from "react";
 import { X } from "lucide-react";
-import { useAuth } from "../../../../contexts/AuthContext";
-import WatchToggle from "./Watched";
-import QualityToggle from "./Quality";
+import { toast } from "sonner";
 
-// import {toast} from "sonner";
+import WatchToggle from "./WatchToggle";
+import QualityToggle from "./QualityToggle";
+import { useAuth } from "../../../../contexts/AuthContext";
+import { useDarkMode } from "@/contexts/ThemeContext";
+
+import type { Video } from "@/components/types";
 
 /**
  * issues:
  *
  * low stream:
- * a bg one running, needs to stop that
+ * a bg one audio is running, need to stop that
  */
 
-const VideoPlayerNew = memo(function VideoPlayer({
-  video,
-  selectedVideo,
-  setSelectedVideo,
-  isDarkMode,
-}) {
-  const videoRef = useRef(null);
-  const subVideoRef = useRef(null);
-  const { token } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [bestQuality, setQuality] = useState(false);
-  const [streamUrl, setStreamUrl] = useState(null);
-  const [audioStreamUrl, setAudioStreamUrl] = useState(null);
+interface VideoPlayerTypes {
+  video: Video | null;
+  setSelectedVideo: React.Dispatch<React.SetStateAction<Video | null>>;
+}
 
-  const apiCallInProgressRef = useRef(false);
-  const currentVideoRef = useRef(null);
+export const VideoPlayer = memo(function VideoPlayer({
+  video,
+  setSelectedVideo,
+}: VideoPlayerTypes) {
+  const { isDarkMode } = useDarkMode();
+  const { token } = useAuth();
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const subVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  const apiCallInProgressRef = useRef<boolean>(false);
+  const currentVideoUrlRef = useRef<string | null>(null);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [bestQuality, setQuality] = useState<boolean>(false);
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
+  const [audioStreamUrl, setAudioStreamUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // reseting on mount
@@ -40,7 +49,7 @@ const VideoPlayerNew = memo(function VideoPlayer({
 
   // memoize the api call function to prevent recreating on every render
   const fetchStreamUrl = useMemo(
-    () => async (videoUrl) => {
+    () => async (videoUrl: string) => {
       if (!token || apiCallInProgressRef.current) return;
 
       apiCallInProgressRef.current = true;
@@ -61,7 +70,7 @@ const VideoPlayerNew = memo(function VideoPlayer({
         const response = await fetch(apiUrl, options);
         const data = await response.json();
 
-        if (data.streamUrl && currentVideoRef.current === videoUrl) {
+        if (data.streamUrl && currentVideoUrlRef.current === videoUrl) {
           setStreamUrl(data.streamUrl);
           if (videoRef.current) {
             videoRef.current.src = data.streamUrl;
@@ -71,7 +80,7 @@ const VideoPlayerNew = memo(function VideoPlayer({
         }
       } catch (err) {
         console.error(err);
-        // toast.error("Failed to load video");
+        toast.error("Failed to load video");
       } finally {
         apiCallInProgressRef.current = false;
         setIsLoading(false);
@@ -93,7 +102,7 @@ const VideoPlayerNew = memo(function VideoPlayer({
           // muted
           className="size-full"
           onError={() => {
-            // toast.error("Error playing video");
+            toast.error("Error playing video");
             setStreamUrl(null);
           }}
         >
@@ -125,35 +134,27 @@ const VideoPlayerNew = memo(function VideoPlayer({
     const mainVideo = videoRef.current;
     const subVideo = subVideoRef.current;
 
-    // Only attach listeners if both video elements are available
+    // only attach listeners if both video elms are available
     if (!mainVideo || !subVideo) return;
 
     mainVideo.muted = false;
     subVideo.muted = false;
 
-    // When the main video plays, update the sub video and play it
+    // sync functions
     const handlePlay = () => {
       subVideo.currentTime = mainVideo.currentTime;
       subVideo.play();
     };
-
-    // When the main video pauses, pause the sub video
     const handlePause = () => {
       subVideo.pause();
     };
-
-    // When seeking completes on the main video, update the sub video's time
     const handleSeeked = () => {
       subVideo.currentTime = mainVideo.currentTime;
     };
-
-    // When the volume or mute state changes, update the sub video accordingly
     const handleVolumeChange = () => {
       subVideo.volume = mainVideo.volume;
       subVideo.muted = mainVideo.muted;
     };
-
-    // Optionally, during playback, check for drift and re-sync if needed
     const handleTimeUpdate = () => {
       const timeDiff = Math.abs(mainVideo.currentTime - subVideo.currentTime);
       if (timeDiff > 0.3) {
@@ -161,14 +162,13 @@ const VideoPlayerNew = memo(function VideoPlayer({
       }
     };
 
-    // Attach event listeners on the main video
+    // listeners on the main video
     mainVideo.addEventListener("play", handlePlay);
     mainVideo.addEventListener("pause", handlePause);
     mainVideo.addEventListener("seeked", handleSeeked);
     mainVideo.addEventListener("volumechange", handleVolumeChange);
     mainVideo.addEventListener("timeupdate", handleTimeUpdate);
 
-    // Cleanup listeners on unmount
     return () => {
       mainVideo.removeEventListener("play", handlePlay);
       mainVideo.removeEventListener("pause", handlePause);
@@ -187,20 +187,19 @@ const VideoPlayerNew = memo(function VideoPlayer({
       setStreamUrl(null);
     }
 
-    // Only fetch if it's a new video
-    if (video?.videoUrl && video.videoUrl !== currentVideoRef.current) {
-      currentVideoRef.current = video.videoUrl;
+    // fetch only if its a new video
+    if (video?.videoUrl && video.videoUrl !== currentVideoUrlRef.current) {
+      currentVideoUrlRef.current = video.videoUrl;
       fetchStreamUrl(video.videoUrl);
     }
 
-    // Cleanup
     return () => {
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.src = "";
         videoRef.current.load(); // !issue ***, it says videoref will be changed by now
       }
-      currentVideoRef.current = null;
+      currentVideoUrlRef.current = null;
       setStreamUrl(null);
       apiCallInProgressRef.current = false;
     };
@@ -263,7 +262,7 @@ const VideoPlayerNew = memo(function VideoPlayer({
             <div
               className={`flex items-center gap-2 text-sm mb-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
             >
-              <span>Lecture {selectedVideo?.index + 1}</span>
+              <span>Lecture {video?.index || -1 + 1}</span>
               <span>•</span>
               <span>{video.videoDuration}</span>
             </div>
@@ -289,12 +288,3 @@ const VideoPlayerNew = memo(function VideoPlayer({
     </>
   );
 });
-
-VideoPlayerNew.propTypes = {
-  video: PropTypes.object,
-  selectedVideo: PropTypes.object,
-  setSelectedVideo: PropTypes.func,
-  isDarkMode: PropTypes.bool,
-};
-
-export default VideoPlayerNew;

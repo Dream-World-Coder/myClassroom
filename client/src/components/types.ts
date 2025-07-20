@@ -1,14 +1,12 @@
-export interface Course {
-  courseName: string;
-  courseOrganiser: string;
-  courseDuration: string;
-  courseUrl: string;
-  courseMaterials: any[];
-  videos: Video[];
-  courseThumbnail?: string;
-  progress: string;
-  noOfLectures: number;
+export interface Goal {
+  id: number;
+  task: string;
+  done: boolean;
 }
+
+export type Remainder = Goal & {
+  notifyAt?: Date | string;
+};
 
 export interface Video {
   videoUrl: string;
@@ -19,26 +17,37 @@ export interface Video {
   index?: number;
 }
 
-export interface Goal {
-  id: number;
-  task: string;
-  done: boolean;
+export interface CourseMaterial {
+  file: File | null;
+  type: string | null;
 }
 
-export interface Remainder {
-  id: number;
-  task: string;
-  done: boolean;
+export interface Course {
+  courseName: string;
+  courseUrl: string;
+  progress?: string;
+  videos: Video[];
+  noOfLectures?: number;
+  courseOrganiser: string;
+  courseDuration: string;
+  courseMaterials: CourseMaterial[];
+  courseThumbnail?: string;
 }
 
 export interface User {
-  profileImg: string;
   username: string;
   email: string;
+  profileImg: string;
+  deviceInfo?: string | null;
   actualName: string | null;
   schoolName: string | null;
   address: string | null;
   currentClass: string | null;
   courses: Course[];
   lastFiveLogin: string[];
+  continuingCourse?: string | null;
 }
+
+export type ErrorType = {
+  message?: string;
+};

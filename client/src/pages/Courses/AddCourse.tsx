@@ -1,23 +1,25 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import Header from "../../components/Headers/Header";
-import CourseCard from "./CourseCard/Course";
 import { toast } from "sonner";
 
-const AddCoursePage = () => {
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => JSON.parse(localStorage.getItem("isDarkModeOn")) || false,
-  );
-  const [activeLink, setActiveLink] = useState("Add Course");
-  const [courseName, setCourseName] = useState("");
-  const [courseOrganiser, setCourseOrganiser] = useState("");
-  const [courseDuration, setCourseDuration] = useState("");
-  const [courseUrl, setCourseUrl] = useState("");
-  const [lastFetchedCourseUrl, setLastFetchedCourseUrl] = useState("");
-  const [studyMaterials, setStudyMaterials] = useState([]);
-  const [previewCourse, setPreviewCourse] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [videos, setVideoList] = useState([
+import { useDarkMode } from "@/contexts/ThemeContext";
+import Header from "../../components/Headers/Header";
+import CourseCard from "./CourseCard/CourseCard";
+
+import type { CourseMaterial, Video, Course } from "@/components/types";
+
+const AddNewCoursePage = () => {
+  const { isDarkMode } = useDarkMode();
+
+  const [courseName, setCourseName] = useState<string>("");
+  const [courseOrganiser, setCourseOrganiser] = useState<string>("");
+  const [courseDuration, setCourseDuration] = useState<string>("");
+  const [courseUrl, setCourseUrl] = useState<string>("");
+  const [lastFetchedCourseUrl, setLastFetchedCourseUrl] = useState<string>("");
+  const [studyMaterials, setStudyMaterials] = useState<CourseMaterial[]>([]);
+  const [previewCourse, setPreviewCourse] = useState<Course | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [videos, setVideoList] = useState<Video[]>([
     {
       videoUrl: "none",
       videoTitle: "none",
@@ -62,18 +64,26 @@ const AddCoursePage = () => {
     setStudyMaterials([...studyMaterials, { file: null, type: "" }]);
   };
 
-  const updateStudyMaterial = (index, field, value) => {
-    const updatedMaterials = [...studyMaterials];
-    updatedMaterials[index][field] = value;
+  const updateStudyMaterial = (
+    index: number,
+    field: "file" | "type",
+    value: File | string,
+  ) => {
+    const updatedMaterials: CourseMaterial[] = [...studyMaterials];
+    if (field === "file" && value instanceof File) {
+      updatedMaterials[index].file = value;
+    } else if (field === "type" && typeof value === "string") {
+      updatedMaterials[index].type = value;
+    }
     setStudyMaterials(updatedMaterials);
   };
 
-  const removeStudyMaterial = (index) => {
+  const removeStudyMaterial = (index: number) => {
     const updatedMaterials = studyMaterials.filter((_, i) => i !== index);
     setStudyMaterials(updatedMaterials);
   };
 
-  var courseData = {
+  let courseData = {
     courseName,
     courseOrganiser,
     courseDuration,
@@ -82,11 +92,12 @@ const AddCoursePage = () => {
     videos,
   };
 
-  function fetchPlayListUrl(courseData) {
+  function fetchPlayListUrl() {
     const apiUrl = `${import.meta.env.VITE_BACKEND_URL}/api/v1/extract-videos-and-save-in-db`;
     const token = localStorage.getItem("token") || null;
     if (!token) {
       toast.error("Authorisation token is NULL.");
+      console.error("Authorisation token is NULL.");
       return;
     }
 
@@ -104,6 +115,7 @@ const AddCoursePage = () => {
         studyMaterials,
       }),
     };
+
     setIsLoading(true);
     fetch(apiUrl, options)
       .then((res) => {
@@ -170,25 +182,20 @@ const AddCoursePage = () => {
   return (
     <div
       className={`min-h-screen transition-colors duration-300 font-[poppins]
-                ${
-                  isDarkMode
-                    ? "bg-[#111] text-stone-100"
-                    : "bg-gray-50 text-gray-800"
-                }`}
+        ${
+          isDarkMode
+            ? "bg-[#111] text-stone-100"
+            : "bg-neutral-50 text-neutral-800"
+        }`}
     >
-      <Header
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        activeLink={activeLink}
-        setActiveLink={setActiveLink}
-      />
+      <Header />
 
       <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Course Creation Form */}
         <div className="space-y-6 mb-10 sm:mb-0">
           <h2
             className={`text-2xl font-bold mb-6
-                        ${isDarkMode ? "text-stone-200" : "text-gray-800"}`}
+                        ${isDarkMode ? "text-stone-200" : "text-neutral-800"}`}
           >
             Create New Course
           </h2>
@@ -206,20 +213,20 @@ const AddCoursePage = () => {
                 <div key={index} className="relative">
                   <input
                     type={item.inputType}
-                    value={item.courseName}
+                    value={item.inputValue}
                     onChange={(e) => item.onChangeFunc(e.target.value)}
                     className={`
-                                    w-full px-4 py-3 rounded-lg border
-                                    focus:outline-hidden transition duration-300
-                                    ${
-                                      isDarkMode
-                                        ? "bg-[#111] border-[#222] text-stone-100 focus:border-lime-600"
-                                        : "bg-white border-gray-300 text-gray-800 focus:border-lime-500"
-                                    }`}
+                      w-full px-4 py-3 rounded-lg border
+                      focus:outline-hidden transition duration-300
+                      ${
+                        isDarkMode
+                          ? "bg-[#111] border-[#222] text-stone-100 focus:border-lime-600"
+                          : "bg-white border-neutral-300 text-neutral-800 focus:border-lime-500"
+                      }`}
                     placeholder={item.placeholder}
-                    required={(index === 0 || index === 3) && "required"}
+                    required={(index === 0 || index === 3) && true}
                   />
-                  <span className="absolute left-3 -top-2 bg-white px-1 text-xs text-gray-500">
+                  <span className="absolute left-3 -top-2 bg-white px-1 text-xs text-neutral-500">
                     {item.labelText}
                   </span>
                 </div>
@@ -232,12 +239,12 @@ const AddCoursePage = () => {
                   <button
                     onClick={addStudyMaterial}
                     className={`
-                                        p-2 rounded-full
-                                        ${
-                                          isDarkMode
-                                            ? "bg-[#222] text-stone-200 hover:bg-stone-600"
-                                            : "bg-lime-500 text-white hover:bg-lime-600"
-                                        }`}
+                      p-2 rounded-full
+                      ${
+                        isDarkMode
+                          ? "bg-[#222] text-stone-200 hover:bg-stone-600"
+                          : "bg-lime-500 text-white hover:bg-lime-600"
+                      }`}
                   >
                     <Plus size={16} />
                   </button>
@@ -252,15 +259,15 @@ const AddCoursePage = () => {
                           updateStudyMaterial(index, "file", e.target.files[0])
                         }
                         className={`
-                                                w-full px-4 py-2 rounded-lg border-2
-                                                focus:outline-hidden transition duration-300
-                                                ${
-                                                  isDarkMode
-                                                    ? "bg-[#111] border-[#222] text-stone-100"
-                                                    : "bg-white border-gray-300 text-gray-800"
-                                                }`}
+                          w-full px-4 py-2 rounded-lg border-2
+                          focus:outline-hidden transition duration-300
+                          ${
+                            isDarkMode
+                              ? "bg-[#111] border-[#222] text-stone-100"
+                              : "bg-white border-neutral-300 text-neutral-800"
+                          }`}
                       />
-                      <span className="absolute left-3 -top-2 bg-white px-1 text-xs text-gray-500">
+                      <span className="absolute left-3 -top-2 bg-white px-1 text-xs text-neutral-500">
                         File
                       </span>
                     </div>
@@ -273,15 +280,15 @@ const AddCoursePage = () => {
                         }
                         placeholder="e.g., Book, PYQ"
                         className={`
-                                                w-full px-4 py-2 rounded-lg border-2
-                                                focus:outline-hidden transition duration-300
-                                                ${
-                                                  isDarkMode
-                                                    ? "bg-[#111] border-[#222] text-stone-100 focus:border-lime-600"
-                                                    : "bg-white border-gray-300 text-gray-800 focus:border-lime-500"
-                                                }`}
+                          w-full px-4 py-2 rounded-lg border-2
+                          focus:outline-hidden transition duration-300
+                          ${
+                            isDarkMode
+                              ? "bg-[#111] border-[#222] text-stone-100 focus:border-lime-600"
+                              : "bg-white border-neutral-300 text-neutral-800 focus:border-lime-500"
+                          }`}
                       />
-                      <span className="absolute left-3 -top-2 bg-white px-1 text-xs text-gray-500">
+                      <span className="absolute left-3 -top-2 bg-white px-1 text-xs text-neutral-500">
                         Material Type
                       </span>
                     </div>
@@ -297,12 +304,12 @@ const AddCoursePage = () => {
                 type="submit"
                 onClick={saveCourse}
                 className={`
-                                w-full py-3 rounded-lg transition duration-300
-                                ${
-                                  isDarkMode
-                                    ? "bg-lime-600 text-stone-100 hover:bg-lime-700"
-                                    : "bg-lime-600 text-white hover:bg-lime-700"
-                                }`}
+                  w-full py-3 rounded-lg transition duration-300
+                  ${
+                    isDarkMode
+                      ? "bg-lime-600 text-stone-100 hover:bg-lime-700"
+                      : "bg-lime-600 text-white hover:bg-lime-700"
+                  }`}
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -322,19 +329,19 @@ const AddCoursePage = () => {
         <div className="space-y-6 col-span-1 md:col-span-2 h-fit pointer-events-none cursor-none">
           <h2
             className={`text-2xl font-bold mb-6
-                        ${isDarkMode ? "text-stone-200" : "text-gray-800"}`}
+              ${isDarkMode ? "text-stone-200" : "text-neutral-800"}`}
           >
             Course Preview
           </h2>
 
           <div
-            className={`Xrounded-lg border ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-gray-200"}`}
+            className={`Xrounded-lg border ${isDarkMode ? "bg-[#111] border-[#222]" : "bg-white border-neutral-200"}`}
           >
             {previewCourse ? (
-              <CourseCard isDarkMode={isDarkMode} courseData={previewCourse} />
+              <CourseCard courseData={previewCourse} />
             ) : (
               <p
-                className={`text-center p-3 ${isDarkMode ? "text-stone-500" : "text-gray-500"}`}
+                className={`text-center p-3 ${isDarkMode ? "text-stone-500" : "text-neutral-500"}`}
               >
                 Course preview will appear here
               </p>
@@ -346,4 +353,4 @@ const AddCoursePage = () => {
   );
 };
 
-export default AddCoursePage;
+export default AddNewCoursePage;
