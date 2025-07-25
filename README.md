@@ -109,13 +109,11 @@ pip install -r requirements.txt
 cretate a .env file
 
 ```zsh
-echo "PORT=5050
+echo "PORT=3000
 SECRET_KEY="any:string"
-SQLALCHEMY_DATABASE_URI="sqlite:///database.sqlite"
-MONGO_URI="mongodb://localhost:27017/flaskStudyWebsite"
-DEV_DATABASE_URL="mongodb://localhost:27017/flaskStudyWebsite_dev"
-TEST_DATABASE_URL="mongodb://localhost:27017/flaskStudyWebsite_test"
-PROD_DATABASE_URL="mongodb://localhost:27017/flaskStudyWebsite_prod"
+DEV_DATABASE_URL="mongodb://localhost:27017/myClassroom_dev"
+TEST_DATABASE_URL="mongodb://localhost:27017/myClassroom_test"
+PROD_DATABASE_URL="mongodb://localhost:27017/myClassroom_prod"
 " >> .env
 ```
 
@@ -157,32 +155,96 @@ chmod +x stop_app.sh
 
 ```txt
 .
-├── LICENSE
-├── README.md
+/** Frontend
+------------- */
 ├── client
 │   ├── components.json
 │   ├── eslint.config.js
 │   ├── index.html
-│   ├── jsconfig.app.json
-│   ├── jsconfig.json
 │   ├── package.json
-│   ├── public
+│   ├── README.md
 │   ├── src
-│   ├── tailwind.config.js
-│   ├── to-do.txt
-│   └── vite.config.js
+│   │   ├── App.css
+│   │   ├── App.tsx
+│   │   ├── assets
+│   │   ├── components
+│   │   │   ├── Headers
+│   │   │   │   └── Header.tsx
+│   │   │   ├── NotFoundPage.tsx
+│   │   │   ├── ProtectedRoutes.tsx
+│   │   │   └── types.ts
+│   │   ├── contexts
+│   │   │   ├── AuthContext.tsx
+│   │   │   └── ThemeContext.tsx
+│   │   ├── hooks
+│   │   ├── index.css
+│   │   ├── lib
+│   │   │   └── utils.ts
+│   │   ├── main.tsx
+│   │   ├── pages
+│   │   │   ├── AboutNContact
+│   │   │   │   └── AnC.tsx
+│   │   │   ├── Auth
+│   │   │   │   ├── Login.tsx
+│   │   │   │   └── Register.tsx
+│   │   │   ├── Courses
+│   │   │   │   ├── AddCourse.tsx
+│   │   │   │   ├── AllCourses.tsx
+│   │   │   │   ├── CourseCard
+│   │   │   │   │   ├── components
+│   │   │   │   │   │   ├── CourseHeader.tsx
+│   │   │   │   │   │   ├── QualityToggle.tsx
+│   │   │   │   │   │   ├── VideoList.tsx
+│   │   │   │   │   │   ├── VideoPlayer.tsx
+│   │   │   │   │   │   └── WatchToggle.tsx
+│   │   │   │   │   └── CourseCard.tsx
+│   │   │   │   └── CoursePage.tsx
+│   │   │   ├── Home
+│   │   │   │   ├── components.tsx
+│   │   │   │   ├── HomePage.tsx
+│   │   │   │   └── note.svg
+│   │   │   ├── LandingPage
+│   │   │   └── profile
+│   │   │       ├── components.tsx
+│   │   │       └── ProfilePage.tsx
+│   │   ├── services
+│   │   │   └── formatDate.ts
+│   │   ├── types
+│   │   │   └── react-calendar-heatmap.d.ts
+│   │   └── vite-env.d.ts
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   ├── vercel.json
+│   └── vite.config.ts
 ├── images
+│   ├── about.png
 │   ├── add-course.png
 │   ├── courses.png
+│   ├── dark-mode.png
 │   ├── home.png
-│   ├── stats.png
-│   └── vid.png
+│   ├── player.png
+│   └── single-course.png
+├── LICENSE
+├── README.md
+
+/** Backend
+------------- */
 ├── server
-│   ├── Procfile
 │   ├── _main
+│   │   ├── h222.py
+│   │   ├── h2x.py
+│   │   └── helper.py
 │   ├── helper.py
 │   ├── instance
 │   ├── myClassroom
+│   │   ├── __init__.py
+│   │   ├── configs.py
+│   │   ├── forms.py
+│   │   ├── models.py
+│   │   ├── routes.py
+│   │   └── utils.py
+│   ├── Procfile
 │   ├── pyproject.toml
 │   ├── requirements.txt
 │   └── run.py
@@ -197,8 +259,6 @@ chmod +x stop_app.sh
 1. It takes time to create a course, the range lies between 10 seconds - 10 minutes approximately based on the playlist size. Actually yt_dlp takes a long time to extract the information from videos, so no need to think its not working, just be a little patient. **Be sure to create a pull request if you find a way to make it faster.**
 
 2. playlist needs to be public.
-
-3. Currently its objective is not concurrency or performance, focus is to create an application for personal use, so not optimised for public deployment.
 
 ---
 
@@ -218,7 +278,11 @@ _Be sure to submit a PR if you add these mentioned features or any other_
 ### **preview**
 
 ![img](./images/home.png)
-![img](./images/stats.png)
+![img](./images/about.png)
+
 ![img](./images/add-course.png)
 ![img](./images/courses.png)
-![img](./images/vid.png)
+![img](./images/single-course.png)
+
+![img](./images/player.png)
+![player-dark-mode image](./images/dark-mode.png)

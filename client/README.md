@@ -1,1 +1,1 @@
-# myClassroom
+# myClassroom client

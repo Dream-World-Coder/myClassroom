@@ -38,63 +38,69 @@ export default function QualityToggle({
   const { token } = useAuth();
 
   const handleToggle = async () => {
-    setQuality(!bestQuality);
-    setIsLoading(true);
+    if (!bestQuality) {
+      setIsLoading(true);
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/stream/high`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            videoUrl: video.videoUrl,
-          }),
-        },
-      );
-
-      if (!response.ok) throw new Error("Request failed");
-      const data: ResType = await response.json();
-      if (data.error) {
-        console.error(data.error);
-        toast.error(data.error);
-      } else if (data.directLinks) {
-        const currentTime = videoRef.current?.currentTime || 0;
-        const wasPlaying = videoRef.current && !videoRef.current.paused;
-
-        setStreamUrl(data.directLinks.videoLink);
-        setAudioStreamUrl(data.directLinks.audioLink);
-
-        if (videoRef.current) {
-          const videoEl = videoRef.current;
-
-          videoEl.src = data.directLinks.videoLink;
-          videoEl.load();
-
-          // Resume playback from the same time
-          videoEl.addEventListener(
-            "loadedmetadata",
-            () => {
-              videoEl.currentTime = currentTime;
-              if (wasPlaying) {
-                videoEl.play();
-              }
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/stream/high`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
-            { once: true },
-          );
+            body: JSON.stringify({
+              videoUrl: video.videoUrl,
+            }),
+          },
+        );
+
+        if (!response.ok) throw new Error("Request failed");
+        const data: ResType = await response.json();
+        if (data.error) {
+          console.error(data.error);
+          toast.error(data.error);
+        } else if (data.directLinks) {
+          const currentTime = videoRef.current?.currentTime || 0;
+          const wasPlaying = videoRef.current && !videoRef.current.paused;
+
+          setQuality(true);
+          setStreamUrl(data.directLinks.videoLink);
+          setAudioStreamUrl(data.directLinks.audioLink);
+
+          if (videoRef.current) {
+            const videoEl = videoRef.current;
+
+            videoEl.src = data.directLinks.videoLink;
+            videoEl.load();
+
+            // Resume playback from the same time
+            videoEl.addEventListener(
+              "loadedmetadata",
+              () => {
+                videoEl.currentTime = currentTime;
+                if (wasPlaying) {
+                  videoEl.play();
+                }
+              },
+              { once: true },
+            );
+          }
+        } else {
+          console.warn(data);
         }
-      } else {
-        console.log(data);
+      } catch (error) {
+        console.error("Error updating watch status:", error);
+        setQuality(false);
+        toast.error("Failed to update video quality");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error updating watch status:", error);
-      setQuality((prev: boolean) => !prev); // Revert if fetch fails
-      toast.error("Failed to update video quality");
-    } finally {
-      setIsLoading(false);
+    } else if (bestQuality) {
+      setQuality(false);
+      // need to store the old url for the video with an id to avoid fetchs
+      setIsLoading(true); // no more toggle
     }
   };
 

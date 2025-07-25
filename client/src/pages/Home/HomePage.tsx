@@ -98,7 +98,58 @@ const HomeDashboard = () => {
   const today = endOfToday();
   const startDate = subMonths(today, 13);
 
-  const sampleData = [{ date: "2025-06-01", count: 10 }];
+  const sampleData = [
+    { date: "2025-06-12", count: 5 },
+    { date: "2025-06-13", count: 3 },
+    { date: "2025-06-14", count: 8 },
+    { date: "2025-06-15", count: 2 },
+    { date: "2025-06-16", count: 6 },
+    { date: "2025-06-17", count: 7 },
+    { date: "2025-06-18", count: 4 },
+    { date: "2025-06-19", count: 9 }, // streak of 8 ends here
+
+    // break: 2025-06-20, 21
+
+    { date: "2025-06-22", count: 2 },
+    { date: "2025-06-23", count: 5 },
+    { date: "2025-06-24", count: 1 },
+
+    // break: 2025-06-25
+
+    { date: "2025-06-26", count: 3 },
+    { date: "2025-06-27", count: 7 },
+    { date: "2025-06-28", count: 6 },
+
+    // break: 2025-06-29, 30
+
+    { date: "2025-07-01", count: 10 },
+    { date: "2025-07-02", count: 3 },
+    { date: "2025-07-03", count: 8 },
+    { date: "2025-07-04", count: 4 },
+
+    // break: 2025-07-05
+
+    { date: "2025-07-06", count: 6 },
+    { date: "2025-07-07", count: 2 },
+
+    // break: 2025-07-08 to 2025-07-10
+
+    { date: "2025-07-11", count: 9 },
+    { date: "2025-07-12", count: 11 },
+    { date: "2025-07-13", count: 5 },
+
+    // break: 2025-07-14
+
+    { date: "2025-07-15", count: 7 },
+    { date: "2025-07-16", count: 3 },
+    { date: "2025-07-17", count: 4 },
+    { date: "2025-07-18", count: 6 },
+    { date: "2025-07-19", count: 1 },
+
+    // break: 2025-07-20
+
+    { date: "2025-07-21", count: 5 },
+  ];
 
   return (
     <div

@@ -9,14 +9,22 @@ cors = CORS()
 jwt = JWTManager()
 
 def create_app(configs_dictionary_key="prod"):
-    app = Flask(__name__)
-    app.config.from_object(configs_dictionary[configs_dictionary_key])
+  app = Flask(__name__)
+  app.config.from_object(configs_dictionary[configs_dictionary_key])
 
-    mongo.init_app(app)
-    cors.init_app(app, origins=["http://localhost:5173"], resources={r"/api/*": {"origins": "*"}})
-    jwt.init_app(app)
+  mongo.init_app(app)
+  cors.init_app(app,
+    origins=[
+      "http://localhost:5173",
+      "https://myclassroom-smoky.vercel.app"
+    ],
+    resources={
+      r"/api/*": {"origins": "*"}
+    })
 
-    from .routes import api_bp
-    app.register_blueprint(api_bp, url_prefix="/api/v1")
+  jwt.init_app(app)
 
-    return app
+  from .routes import api_bp
+  app.register_blueprint(api_bp, url_prefix="/api/v1")
+
+  return app
