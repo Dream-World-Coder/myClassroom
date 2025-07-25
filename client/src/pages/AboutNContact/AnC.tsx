@@ -1,11 +1,8 @@
-import { useState } from "react";
 import Header from "../../components/Headers/Header";
+import { useDarkMode } from "@/contexts/ThemeContext";
 
 const AboutAndContactPage = () => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() =>
-    JSON.parse(localStorage.getItem("isDarkModeOn") || "false"),
-  );
-  const [activeLink, setActiveLink] = useState<string>("About & Contact");
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div
@@ -13,12 +10,7 @@ const AboutAndContactPage = () => {
         isDarkMode ? "bg-[#111] text-white" : "bg-gray-50 text-black"
       }`}
     >
-      <Header
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        activeLink={activeLink}
-        setActiveLink={setActiveLink}
-      />
+      <Header />
 
       <main className="max-w-6xl mx-auto pt-6 px-6">
         {/* About */}

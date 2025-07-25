@@ -16,12 +16,12 @@ import { useDarkMode } from "@/contexts/ThemeContext";
 import type { User } from "@/components/types";
 import type { LucideProps } from "lucide-react";
 
-type profileField = {
-  profile: User;
+export type profileFieldType = {
+  profile?: User;
   setProfile: React.Dispatch<React.SetStateAction<User>>;
   isEditing: boolean;
   field: {
-    id: string;
+    id: keyof User;
     label: string;
     icon: React.ForwardRefExoticComponent<
       Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
@@ -35,7 +35,7 @@ export const ProfileField = ({
   profile,
   setProfile,
   isEditing,
-}: profileField) => {
+}: profileFieldType) => {
   const { isDarkMode } = useDarkMode();
 
   const handleInputChange = (fieldId: string, value: string) => {
@@ -57,7 +57,7 @@ export const ProfileField = ({
       <div className="flex items-center gap-2">
         <field.icon className="w-4 h-4 text-stone-400" />
         <Input
-          value={profile[field.id] || ""}
+          value={profile ? (profile[field.id]?.toString() ?? "") : ""}
           placeholder={field.placeholder}
           onChange={(e) => handleInputChange(field.id, e.target.value)}
           disabled={!isEditing}

@@ -10,6 +10,7 @@ import {
   X,
   BookOpen,
   Clock,
+  type LucideProps,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,15 @@ import { ProfileField, LogoutButton } from "./components";
 import type { User as Profile } from "@/components/types";
 
 import { formatDate } from "@/services/formatDate";
+
+interface FieldType {
+  id: keyof Profile;
+  label: string;
+  icon: React.ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
+  >;
+  placeholder: string;
+}
 
 const ProfilePage = () => {
   const { isDarkMode } = useDarkMode();
@@ -88,7 +98,8 @@ const ProfilePage = () => {
         toast.success(data.message);
       } catch (err) {
         console.error("Error fetching course data:", err);
-        toast.error(err);
+        if (err instanceof Error)
+          toast.error("Error", { description: `${err.message}` });
       }
     }
     await updateUserData();
@@ -136,7 +147,7 @@ const ProfilePage = () => {
     fetchUserData();
   }, [token]);
 
-  const profileFields = [
+  const profileFields: FieldType[] = [
     {
       id: "actualName",
       label: "Full Name",

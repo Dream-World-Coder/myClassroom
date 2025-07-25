@@ -18,7 +18,7 @@ import type { Course } from "@/components/types";
 export default function AllCourses({
   asComponent = false,
 }: {
-  asComponent: boolean;
+  asComponent?: boolean;
 }) {
   const { isDarkMode } = useDarkMode();
 

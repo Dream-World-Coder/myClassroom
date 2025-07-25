@@ -255,9 +255,12 @@ const AddNewCoursePage = () => {
                     <div className="relative grow">
                       <input
                         type="file"
-                        onChange={(e) =>
-                          updateStudyMaterial(index, "file", e.target.files[0])
-                        }
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          if (files && files.length > 0) {
+                            updateStudyMaterial(index, "file", files[0]);
+                          }
+                        }}
                         className={`
                           w-full px-4 py-2 rounded-lg border-2
                           focus:outline-hidden transition duration-300
@@ -274,7 +277,7 @@ const AddNewCoursePage = () => {
                     <div className="relative grow">
                       <input
                         type="text"
-                        value={material.type}
+                        value={material.type ?? ""}
                         onChange={(e) =>
                           updateStudyMaterial(index, "type", e.target.value)
                         }
